@@ -3,31 +3,143 @@
 @import "footer";
 @import "colors";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 //------------------------------------------------------------------------------------------------------------
 
 html[data-theme="dark"] {
+  h1 {
+    margin: 0;
+  }
   body {
     background-color: black;
+    position: relative;
+    padding-bottom: 200px;
   }
-  #title {
-    margin: 3vw 0 3vh 4vw;
-    color: $orangeOp;
-    letter-spacing: 4px;
+
+  main {
+    display: grid;
+    grid-template-columns: [sidebar]20% [main]80%;
+    margin: 0 10px;
   }
-  #whatToWatch {
+
+  aside {
+    grid-area: sidebar;
+    margin: 10px 0 0 10px;
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-corner {
+      background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+      border: none;
+    }
+
+    #genresLegend {
+      text-align: right;
+      padding: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid $orangeOp;
+      h1 {
+        color: $orangeOp;
+        font-size: 2.5vw;
+        i {
+          color: $orangeOp;
+          font-size: 2.5vw;
+        }
+      }
+    }
+    ul {
+      position: sticky;
+      left: 0;
+      top: 0;
+      list-style-type: none;
+      direction: rtl;
+      height: 100vh;
+      overflow: scroll;
+      li {
+        background-color: $lightBlack;
+        direction: ltr;
+        padding: 10px;
+        margin: 5%;
+        transition: 0.5s;
+        a {
+          text-decoration: none;
+          color: rgb(145, 143, 143);
+          transition: 0.5s;
+          cursor: pointer;
+        }
+      }
+      li:hover {
+        background-color: black;
+        a {
+          color: $orangeOp;
+        }
+      }
+    }
+  }
+
+  section {
+    grid-area: main;
+    .genre {
+      color: $orangeOp;
+      background-color: $lightBlack;
+      font-size: 3.5vw;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    #slogan {
+      width: 100%;
+      padding: 30px;
+      border-radius: 10px;
+      background-color: $lightBlack;
+      text-align: center;
+      h2 {
+        color: white;
+      }
+      h1 {
+        color: $orangeOp;
+        overflow: hidden;
+        background: linear-gradient(
+          to right,
+          $lightBlue,
+          $lightBlue 50%,
+          $orangeOp 50%
+        );
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 100%;
+        background-position: 100%;
+        transition: background-position 1s ease;
+      }
+      h1:hover {
+        background-position: 0 100%;
+      }
+      img {
+        margin-bottom: 8px;
+      }
+    }
+    .module-border-wrap {
+      width: 75%;
+      margin: 50px auto;
+      padding: 1rem;
+      position: relative;
+      border-radius: 10px;
+      background: linear-gradient(to right, $orangeOp, $lightBlue);
+    }
+  }
+
+  article {
     border-left: 1px solid $orangeOp;
-    margin: 0 4vw;
     display: grid;
     grid-template-columns: auto auto auto auto auto;
     justify-items: center;
-    padding: 1vw 0;
+    justify-content: space-evenly;
+    padding: 30px 0;
     row-gap: 30px;
+    margin-bottom: 30px;
 
     .far,
     .fas {
@@ -71,6 +183,9 @@ html[data-theme="dark"] {
           color: $lightBlack;
           text-align: center;
           padding: 2px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
         .card-label {
           color: $orangeOp;
@@ -84,7 +199,7 @@ html[data-theme="dark"] {
           height: 180px;
           overflow-y: auto;
         }
-        #genre {
+        #filmGenre {
           height: 50px;
           overflow: hidden;
         }
@@ -111,7 +226,7 @@ html[data-theme="dark"] {
         opacity: 100%;
       }
       position: relative;
-      bottom: 2vh;
+      bottom: 15px;
       box-shadow: 0 4px 8px 0 $orangeOp, 0 6px 20px 0 $orangeOp;
     }
   }
@@ -120,17 +235,132 @@ html[data-theme="dark"] {
 //--------------------------------------------------------------------------------------------------------
 
 html[data-theme="light"] {
+  h1 {
+    margin: 0;
+  }
   body {
     background-color: $primary;
+    position: relative;
+    padding-bottom: 200px;
   }
-  #title {
-    margin: 3vw 0 3vh 4vw;
-    color: $lightBlue;
-    letter-spacing: 4px;
+  main {
+    display: grid;
+    grid-template-columns: [sidebar]20% [main]80%;
+    margin: 0 10px;
   }
-  #whatToWatch {
+  aside {
+    grid-area: sidebar;
+    margin: 10px 0 0 10px;
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-corner {
+      background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+      border: none;
+    }
+
+    #genresLegend {
+      text-align: right;
+      padding: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid $lightBlue;
+      h1 {
+        color: $lightBlue;
+        font-size: 2.5vw;
+        i {
+          color: $lightBlue;
+          font-size: 2.5vw;
+        }
+      }
+    }
+
+    ul {
+      position: sticky;
+      left: 0;
+      top: 0;
+      list-style-type: none;
+      direction: rtl;
+      height: 100vh;
+      overflow: scroll;
+      li {
+        background-color: white;
+        direction: ltr;
+        padding: 10px;
+        margin: 5%;
+        transition: 0.5s;
+
+        a {
+          text-decoration: none;
+          color: black;
+          transition: 0.5s;
+          cursor: pointer;
+        }
+      }
+      li:hover {
+        background-color: $primary;
+        a {
+          color: $lightBlue;
+        }
+      }
+    }
+  }
+  section {
+    grid-area: main;
+    .genre {
+      color: $lightBlue;
+      background-color: white;
+      font-size: 3.5vw;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+  }
+  #slogan {
+    width: 100%;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: white;
+    text-align: center;
+    h2 {
+      color: black;
+    }
+    h1 {
+      color: $lightBlue;
+      overflow: hidden;
+      background: linear-gradient(
+        to right,
+        $orangeOp,
+        $orangeOp 50%,
+        $lightBlue 50%
+      );
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+      background-position: 100%;
+      transition: background-position 500ms ease;
+    }
+    h1:hover {
+      background-position: 0 100%;
+    }
+    img {
+      margin-bottom: 8px;
+    }
+  }
+  .module-border-wrap {
+    width: 75%;
+    margin: 50px auto;
+    padding: 1rem;
+    position: relative;
+    border-radius: 10px;
+    background: linear-gradient(to right, $orangeOp, $lightBlue);
+  }
+  article {
     border-left: 1px solid $lightBlue;
-    margin: 0 4vw;
     display: grid;
     grid-template-columns: auto auto auto auto auto;
     justify-items: center;
@@ -179,6 +409,9 @@ html[data-theme="light"] {
           color: white;
           text-align: center;
           padding: 2px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
         .card-label {
           color: $lightBlue;
@@ -192,7 +425,7 @@ html[data-theme="light"] {
           height: 180px;
           overflow-y: auto;
         }
-        #genre {
+        #filmGenre {
           height: 50px;
           overflow: hidden;
         }
@@ -219,13 +452,26 @@ html[data-theme="light"] {
         opacity: 100%;
       }
       position: relative;
-      bottom: 2vh;
+      bottom: 15px;
       box-shadow: 0 4px 8px 0 $lightBlue, 0 6px 20px 0 $lightBlue;
     }
   }
 }
 
 //-----------------------------------------------------------------------------------------------------------
+
+@media only screen and (max-width: 1600px) {
+  html[data-theme="light"] {
+    article {
+      grid-template-columns: auto auto auto auto;
+    }
+  }
+  html[data-theme="dark"] {
+    article {
+      grid-template-columns: auto auto auto auto;
+    }
+  }
+}
 
 @media only screen and (max-width: 1200px) {
   html[data-theme="light"] {
@@ -234,8 +480,8 @@ html[data-theme="light"] {
         width: 300px;
       }
     }
-    #whatToWatch {
-      grid-template-columns: auto auto auto auto;
+    article {
+      grid-template-columns: auto auto auto;
     }
   }
   html[data-theme="dark"] {
@@ -244,50 +490,13 @@ html[data-theme="light"] {
         width: 300px;
       }
     }
-    #whatToWatch {
-      grid-template-columns: auto auto auto auto;
-    }
-  }
-}
-
-@media only screen and (max-width: 992px) {
-  html[data-theme="light"] {
-    header {
-      padding: 30px 0px;
-      flex-direction: column;
-      row-gap: 20px;
-
-      #searchFilm {
-        width: 60%;
-      }
-      img {
-        width: 400px;
-      }
-    }
-    #whatToWatch {
-      grid-template-columns: auto auto auto;
-    }
-  }
-  html[data-theme="dark"] {
-    header {
-      padding: 30px 0px;
-      flex-direction: column;
-      row-gap: 20px;
-
-      #searchFilm {
-        width: 60%;
-      }
-      img {
-        width: 400px;
-      }
-    }
-    #whatToWatch {
+    article {
       grid-template-columns: auto auto auto;
     }
   }
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 800px) {
   html[data-theme="dark"] {
     header {
       row-gap: 15px;
@@ -298,7 +507,7 @@ html[data-theme="light"] {
         width: 300px;
       }
     }
-    #whatToWatch {
+    article {
       grid-template-columns: auto auto;
       border-left: 1px solid $orangeOp;
       .card {
@@ -307,6 +516,9 @@ html[data-theme="light"] {
         }
       }
     }
+    #title {
+      font-size: 20px;
+    }
   }
   html[data-theme="light"] {
     header {
@@ -318,13 +530,16 @@ html[data-theme="light"] {
         width: 300px;
       }
     }
-    #whatToWatch {
+    article {
       grid-template-columns: auto auto;
       .card {
         img {
           opacity: 100%;
         }
       }
+    }
+    #title {
+      font-size: 20px;
     }
   }
 }
@@ -340,7 +555,7 @@ html[data-theme="light"] {
         width: 200px;
       }
     }
-    #whatToWatch {
+    article {
       grid-template-columns: auto;
     }
   }
@@ -354,7 +569,7 @@ html[data-theme="light"] {
         width: 200px;
       }
     }
-    #whatToWatch {
+    article {
       grid-template-columns: auto;
     }
   }
