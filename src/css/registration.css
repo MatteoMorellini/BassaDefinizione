@@ -106,10 +106,10 @@
 }
 
 @media only screen and (max-width: 600px) {
-  form {
+  .form-registration {
     width: 300px;
   }
-  form #imgLogo {
+  .form-registration #imgLogo {
     width: 300px;
   }
 }

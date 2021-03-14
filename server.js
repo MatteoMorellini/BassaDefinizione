@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken")
 const atob = require("atob")
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
-const PORT = process.env.PORT || 5000
+const serverPort = process.env.PORT || 5000
 const publicDirectoryPath = path.join(__dirname, "/build")
 app.use(express.static(publicDirectoryPath))
 
@@ -350,4 +350,4 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
-app.listen(80)
+app.listen(serverPort, () => console.log(serverPort))
