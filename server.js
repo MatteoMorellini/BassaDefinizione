@@ -10,7 +10,7 @@ const atob = require("atob")
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
 
-const publicDirectoryPath = path.join(__dirname, "public")
+const publicDirectoryPath = path.join(__dirname, "/build")
 app.use(express.static(publicDirectoryPath))
 
 app.use(express.urlencoded({ extended: false }))
@@ -286,6 +286,10 @@ const favoriteFilms = async (userID, res) => {
 }
 
 // API SECTION -------------------------------------------------------------------------------
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"))
+})
 
 app.get("/genres", async (req, res) => {
   const results = await dbQuery("SELECT * FROM `genres`", [])
