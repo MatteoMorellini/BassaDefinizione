@@ -35,7 +35,7 @@
     "eject": "react-scripts eject",
     "client": "react-scripts start",
     "server": "node ./server.js",
-    "start": "concurrently \"npm run server\" \"npm run client\""
+    "start": "node server.js"
   },
   "eslintConfig": {
     "extends": [

@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken")
 const atob = require("atob")
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
-
+const PORT = process.env.PORT || 5000
 const publicDirectoryPath = path.join(__dirname, "/build")
 app.use(express.static(publicDirectoryPath))
 
@@ -350,4 +350,6 @@ app.post("/token", verifyToken, async (req, res) => {
   }
 })
 
-app.listen(5000)
+app.listen(PORT, () => {
+  console.log(`server started on port ${PORT}`)
+})
