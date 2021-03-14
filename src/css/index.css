@@ -2,7 +2,7 @@ footer {
   width: 100%;
   position: absolute;
   bottom: 0;
-  height: 150px;
+  min-height: 150px;
   background-color: #ff9900;
 }
 
@@ -22,11 +22,23 @@ footer ul a:visited,
 footer ul a:active {
   text-decoration: none;
   color: black;
+  border: 1px solid red;
   opacity: 70%;
+}
+
+footer ul a i,
+footer ul a:link i,
+footer ul a:visited i,
+footer ul a:active i {
+  display: block !important;
 }
 
 footer ul a:hover {
   opacity: 100%;
+}
+
+footer .footer-copyright {
+  padding: 0;
 }
 
 footer .footer-copyright i {
@@ -801,9 +813,6 @@ article#articleFilms .card:hover {
     -ms-grid-columns: auto auto auto;
         grid-template-columns: auto auto auto;
     border-left: 1px solid #ff9900;
-  }
-  article#articleFilms .card img {
-    opacity: 100%;
   }
   #title {
     font-size: 20px;

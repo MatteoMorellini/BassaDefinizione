@@ -13,7 +13,8 @@ const SearchedFilm = ({ token, setToken }) => {
   const dislikeButton = useRef()
 
   useEffect(() => {
-    const url = encodeURI(`/film/${title}`)
+    const url = encodeURI(`/film-data/${title}`)
+    console.log(title)
     fetch(url)
       .then((res) => res.json())
       .then((film) => {
@@ -74,13 +75,11 @@ const SearchedFilm = ({ token, setToken }) => {
                   <i
                     className="fas fa-thumbs-up"
                     onClick={() => onLikeClick(1)}
-                    ref={likeButton}
-                  ></i>
+                    ref={likeButton}></i>
                   <i
                     className="fas fa-thumbs-down"
                     onClick={() => onLikeClick(0)}
-                    ref={dislikeButton}
-                  ></i>
+                    ref={dislikeButton}></i>
                 </div>
               )}
             </div>

@@ -287,10 +287,6 @@ const favoriteFilms = async (userID, res) => {
 
 // API SECTION -------------------------------------------------------------------------------
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"))
-})
-
 app.get("/genres", async (req, res) => {
   const results = await dbQuery("SELECT * FROM `genres`", [])
   res.json(results)
@@ -312,7 +308,7 @@ app.get("/search", async (req, res) => {
   } else res.json(data.Response)
 })
 
-app.get("/film/:title", async (req, res) => {
+app.get("/film-data/:title", async (req, res) => {
   const { title } = req.params
   try {
     const data = await searchFilm(title)
@@ -322,7 +318,7 @@ app.get("/film/:title", async (req, res) => {
   }
 })
 
-app.get("/user/:username", verifyToken, (req, res) => {
+app.get("/user-data/:username", verifyToken, (req, res) => {
   favoriteFilms(req.id, res)
 })
 
@@ -350,6 +346,8 @@ app.post("/token", verifyToken, async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`server started on port ${PORT}`)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"))
 })
+
+app.listen(80)

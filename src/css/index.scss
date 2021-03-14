@@ -398,11 +398,6 @@ article#articleFilms {
   article#articleFilms {
     grid-template-columns: auto auto auto;
     border-left: 1px solid $orangeOp;
-    .card {
-      img {
-        opacity: 100%;
-      }
-    }
   }
   #title {
     font-size: 20px;
