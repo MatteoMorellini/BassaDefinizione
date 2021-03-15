@@ -50,7 +50,6 @@ const Catalog = ({
     currentPage.current = isNaN(e.target.dataset.page)
       ? 0
       : e.target.dataset.page
-    console.log(currentPage)
     getActualPageFilms()
   }
 
@@ -82,7 +81,7 @@ const Catalog = ({
               <Pagination
                 onPageClick={onPageClick}
                 pagesNumber={pagesNumber.current}
-                currentPage={parseInt(currentPage.current)}
+                currentPage={currentPage.current}
               />
             ) : null}
           </nav>

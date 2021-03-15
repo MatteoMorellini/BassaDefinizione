@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import "./pagination.css"
 
 const Pagination = ({ pagesNumber, onPageClick, currentPage }) => {
@@ -7,7 +7,7 @@ const Pagination = ({ pagesNumber, onPageClick, currentPage }) => {
     for (let index = 0; index < pagesNumber; index++) {
       content.push(
         <li
-          className={currentPage === index ? "active page-item" : "page-item"}
+          className={+currentPage === index ? "active page-item" : "page-item"}
           data-page={index}
           key={index}
           onClick={onPageClick}>
@@ -21,18 +21,18 @@ const Pagination = ({ pagesNumber, onPageClick, currentPage }) => {
 
   return (
     <ul className="pagination justify-content-center">
-      {currentPage > 0 ? (
+      {+currentPage > 0 ? (
         <li
-          data-page={currentPage - 1}
+          data-page={+currentPage - 1}
           onClick={onPageClick}
           className="page-item">
           <i className="fas fa-angle-double-left"></i>
         </li>
       ) : null}
       <ListPages />
-      {currentPage + 1 < pagesNumber ? (
+      {+currentPage + 1 < pagesNumber ? (
         <li
-          data-page={currentPage + 1}
+          data-page={+currentPage + 1}
           onClick={onPageClick}
           className="page-item">
           <i className="fas fa-angle-double-right"></i>
