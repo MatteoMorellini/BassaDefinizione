@@ -83,11 +83,11 @@ const SearchedFilm = ({ token, setToken }) => {
                   <i
                     className="fas fa-thumbs-up"
                     onClick={() => onLikeClick(1)}
-                    ref={likeButton}></i>
+                    ref={likeButton}>like</i>
                   <i
                     className="fas fa-thumbs-down"
                     onClick={() => onLikeClick(0)}
-                    ref={dislikeButton}></i>
+                    ref={dislikeButton}>dislike</i>
                 </div>
               )}
             </div>

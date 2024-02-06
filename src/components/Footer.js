@@ -7,42 +7,42 @@ const Footer = () => {
             <a
               href="https://www.facebook.com/profile.php?id=100010848486989"
               className="btn-floating fa-lg fa-2x">
-              <i className="fab fa-facebook-f"> </i>
+              <i className="fab fa-facebook-f">facebook</i>
             </a>
           </li>
           <li className="list-inline-item">
             <a
               href="https://twitter.com/Mmorello08"
               className="btn-floating fa-lg fa-2x">
-              <i className="fab fa-twitter"> </i>
+              <i className="fab fa-twitter">twitter</i>
             </a>
           </li>
           <li className="list-inline-item">
             <a
               href="https://www.instagram.com/matteo.mrl/?hl=it"
               className="btn-floating fa-lg fa-2x">
-              <i className="fab fa-instagram"> </i>
+              <i className="fab fa-instagram">insta</i>
             </a>
           </li>
           <li className="list-inline-item">
             <a
               href="https://www.linkedin.com/in/matteo-morellini-306a331a8/"
               className="btn-floating fa-lg fa-2x">
-              <i className="fab fa-linkedin-in"> </i>
+              <i className="fab fa-linkedin-in">linkedin</i>
             </a>
           </li>
           <li className="list-inline-item">
             <a
               href="https://github.com/TheGodMorel"
               className="btn-floating fa-lg fa-2x">
-              <i className="fab fa-github"> </i>
+              <i className="fab fa-github">github</i>
             </a>
           </li>
         </ul>
       </div>
 
       <div className="footer-copyright text-center py-3">
-        Created with <i className="fas fa-heart"></i> by Matteo Morellini.
+        Created with passion by Matteo Morellini.
       </div>
     </footer>
   )

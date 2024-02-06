@@ -151,11 +151,23 @@ const searchFilm = async (name) => {
   }
 }
 
+const genreID = async(genre) => {
+  try{
+    let [
+      { id } // id of the current genre
+    ] = await dbQuery(`SELECT id FROM genres WHERE name = ? LIMIT 1`, [
+      genre
+    ])
+    return id
+  } catch {
+    return undefined
+  }
+}
+
 const renderFilms = async ({ genre, page }, res) => {
   // render movies by genre and page
   const offset = parseInt(page) * cardsPerPage
   // number of results to skip given by the page number requested by the user multiplied by the films on each page
-
   const [
     { id }
   ] = await dbQuery("SELECT `id` FROM `genres` WHERE `name` = ? LIMIT 1", [
@@ -168,6 +180,7 @@ const renderFilms = async ({ genre, page }, res) => {
     `SELECT filmID FROM genreFilm WHERE genreID = ? LIMIT 10 OFFSET ?`,
     [id, offset]
   )
+
 
   // get the title from the id
 
@@ -225,12 +238,7 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
           insertId // id of the inserted film
         } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
         genres.forEach(async (genre) => {
-          let [
-            { id } // id of the current genre
-          ] = await dbQuery(`SELECT id FROM genres WHERE name = ? LIMIT 1`, [
-            genre
-          ])
-
+          const id = await genreID(genre)
           // if the genre is not present in the genre table it is added
           if (id !== undefined) {
             dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [insertId, id])
