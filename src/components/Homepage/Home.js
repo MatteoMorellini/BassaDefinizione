@@ -15,7 +15,6 @@ const Home = ({ token, setToken }) => {
       .then((response) => response.json())
       .then((data) => {
         genres.current = data
-        setCurrentGenre(data[0].name)
       })
   }, [])
 

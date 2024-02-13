@@ -213,6 +213,39 @@ const renderFilms = async ({ genre, page }, res) => {
   //the try-catch block is missing, to be added together with an error message
 }
 
+const addNewGenres = async (insertId, genres) => {
+  genres.forEach(async (genre) => {
+    const id = await genreID(genre)
+    // if the genre is not present in the genre table it is added
+    if (id !== undefined) {
+      dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [insertId, id])
+    } else {
+      await dbQuery(`INSERT INTO genres (name) VALUES(?)`, [genre])
+      let genreID = await dbQuery(
+        `SELECT id FROM genres WHERE name = ? LIMIT 1`,
+        [genre]
+      )
+      dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [
+        insertId,
+        genreID[0].id
+      ])
+    }
+  })
+}
+
+const returnMovieId = async(titleID, title, genres) => {
+  if (!titleID.length) {
+    const {
+      insertId // id of the inserted film
+    } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
+
+    await addNewGenres(insertId, genres)
+    return insertId
+  } else {
+    return titleID[0].id
+  }
+}
+
 // vote for a movie given its title, liked it and the voting user's id
 
 const voteFilm = async ({ title, rating }, userIDreq, res) => {
@@ -229,39 +262,13 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
     )
     if (titleID.length < 1) {
       // check if the film has been voted by any user
-      titleID = await dbQuery("SELECT id FROM films WHERE title = ? LIMIT 1", [
+      const titleID = await dbQuery("SELECT id FROM films WHERE title = ? LIMIT 1", [
         title
       ])
-
-      if (!titleID.length) {
-        const {
-          insertId // id of the inserted film
-        } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
-        genres.forEach(async (genre) => {
-          const id = await genreID(genre)
-          // if the genre is not present in the genre table it is added
-          if (id !== undefined) {
-            dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [insertId, id])
-          } else {
-            await dbQuery(`INSERT INTO genres (name) VALUES(?)`, [genre])
-            let genreID = await dbQuery(
-              `SELECT id FROM genres WHERE name = ? LIMIT 1`,
-              [genre]
-            )
-            dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [
-              insertId,
-              genreID[0].id
-            ])
-          }
-        })
-      }
-
+      const movieID = await returnMovieId(titleID, title, genres)
+      
       // insert the vote
-      dbQuery(`INSERT INTO votes VALUES(?,?,?)`, [
-        titleID[0].id,
-        userIDreq,
-        rating
-      ])
+      dbQuery(`INSERT INTO votes VALUES(?,?,?)`, [movieID,userIDreq,rating])
     } else {
       // if the user has already voted for the film, the vote is updated
       dbQuery(
@@ -269,7 +276,6 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
         [rating, titleID[0].id, userIDreq] //se l'utente ha già votato il film, il voto è aggiornato
       )
     }
-
     res.status(200).json({ auth: true, vote: true })
   } catch (err) {
     res.status(401).json({ auth: true, vote: false })

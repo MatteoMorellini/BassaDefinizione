@@ -92,7 +92,7 @@ const Navbar = ({ token, setToken }) => {
         onSubmit={(e) => {
           e.preventDefault()
         }}>
-        <i className="fa fa-search"></i>
+        <i className="fa-solid fa-search"></i>
         <input
           className="input-field"
           spellCheck="false"
@@ -113,7 +113,7 @@ const Navbar = ({ token, setToken }) => {
                 return (
                   <li key={index}>
                     <a href={`/film/${film.Title}`}>
-                      <p>{film.Title}</p> <i className="fas fa-arrow-right"></i>
+                      <p>{film.Title}</p> <i className="fa-solid fa-arrow-right"></i>
                     </a>
                   </li>
                 )
@@ -125,10 +125,10 @@ const Navbar = ({ token, setToken }) => {
 
       <div id="userInteraction">
         <a href="/login" id="button-user" ref={userButton}>
-          <i className="far fa-user"></i> GET STARTED
+          <i className="fa-solid fa-user"></i> GET STARTED
         </a>
         <button id="button-logout" ref={logoutButton} onClick={deleteToken}>
-          <i className="fas fa-sign-out-alt"></i> LOGOUT
+          <i className="fa-solid fa-sign-out-alt"></i> LOGOUT
         </button>
       </div>
     </header>
