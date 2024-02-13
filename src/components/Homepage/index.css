@@ -22,8 +22,6 @@ footer ul a:visited,
 footer ul a:active {
   text-decoration: none;
   color: black;
-  border: 1px solid red;
-  opacity: 70%;
 }
 
 footer ul a i,
@@ -31,10 +29,7 @@ footer ul a:link i,
 footer ul a:visited i,
 footer ul a:active i {
   display: block !important;
-}
-
-footer ul a:hover {
-  opacity: 100%;
+  
 }
 
 footer .footer-copyright {
