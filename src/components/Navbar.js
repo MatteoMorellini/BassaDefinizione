@@ -10,10 +10,13 @@ const Navbar = ({ token, setToken }) => {
   const [results, setResults] = useState([])
   const [movieSearch, setMovieSearch] = useState(true);
   const [user, setUser] = useState('')
+  const suggestions = useRef()
+  const [showResults, setShowResults] = useState(false)
 
   const changeSearch = (chosenSearch) => {
     if(movieSearch!==chosenSearch){
       setInput('')
+      setResults([])
       setMovieSearch(chosenSearch);
     }
   };
@@ -66,6 +69,23 @@ const Navbar = ({ token, setToken }) => {
   }
 
   useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (suggestions.current && !suggestions.current.contains(event.target)) {
+        setShowResults(false)
+      } else {
+        setShowResults(true)
+      }
+    };
+
+    window.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('click', handleOutsideClick);
+    };
+  }, []); // Empty dependency array ensures this effect runs only once
+
+
+  useEffect(() => {
     checkAccess()
   }, [token])
 
@@ -77,6 +97,7 @@ const Navbar = ({ token, setToken }) => {
           .then((res) => res.json())
           .then((data) => {
             if (data.Response) {
+              setShowResults(true)
               setResults(data.Search)
             } else {
               setResults([])
@@ -89,6 +110,7 @@ const Navbar = ({ token, setToken }) => {
           fetch(`/search-user?s=${input}`)
           .then((res) => res.json())
           .then((data) => {
+            setShowResults(true)
             setResults(data)
           })
           .catch(() => {
@@ -112,6 +134,7 @@ const Navbar = ({ token, setToken }) => {
       <form
         id="searchFilm"
         className = {movieSearch ? 'searchFilm' : 'searchUsers'}
+        ref={suggestions}
         onSubmit={(e) => {
           e.preventDefault()
         }}>
@@ -128,8 +151,8 @@ const Navbar = ({ token, setToken }) => {
           placeholder= {movieSearch ? "Search for a movie..." : 'Search for a user...'}
         />
         <div id="suggestions">
-          {(input.length === 0 || results === undefined) && (<span></span>)}
-          {(input.length>0 && results !== undefined && movieSearch === true) && (
+          {(input.length === 0 || results === undefined || showResults === false) && (<span></span>)}
+          {(input.length>0 && results !== undefined && showResults === true && movieSearch === true) && (
             <ul>
                 {results.map((film, index) => {
                   return (
@@ -142,9 +165,8 @@ const Navbar = ({ token, setToken }) => {
                 })}
               </ul>
           )}
-          {(input.length>0 && results !== undefined && movieSearch === false) && (
+          {(input.length>0 && results !== undefined && showResults === true && movieSearch === false) && (
             <ul>
-
               {results.map(({username}, index) => {
                 if (user !== username){
                   return (
