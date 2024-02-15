@@ -159,11 +159,10 @@ header img {
 
 header #searchFilm {
   margin: 0;
-  color: #ff9900;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  width: 450px;
+  width: 400px;
   position: relative;
   border-radius: 0;
   background-color: transparent;
@@ -174,15 +173,31 @@ header #searchFilm {
   -ms-flex-pack: justify;
   justify-content: space-between;
   padding: 8px;
+}
+
+form.searchFilm {
+  color: #ff9900;
   border-bottom: 1px solid #ff9900;
+}
+
+form.searchUsers {
+  color: #68beff !important;
+  border-bottom: 1px solid #68beff;
 }
 
 header #searchFilm input[type="text"] {
   background-color: #121212;
   width: 100%;
   outline: none;
-  color: #ff9900;
   border: transparent;
+}
+
+header #searchFilm.searchFilm input[type="text"]{
+  color: #ff9900
+}
+
+header #searchFilm.searchUsers input[type="text"]{
+  color: #68beff
 }
 
 header #searchFilm #suggestions {
@@ -216,8 +231,12 @@ header #searchFilm #suggestions li:hover {
   background-color: black !important;
 }
 
-header #searchFilm #suggestions li:hover i {
+header #searchFilm.searchFilm #suggestions li:hover i {
   color: #ff9900;
+}
+
+header #searchFilm.searchUsers #suggestions li:hover i {
+  color: #68beff;
 }
 
 header #searchFilm #suggestions a {
@@ -254,9 +273,24 @@ header #searchFilm button {
   background-color: #121212;
 }
 
-header #searchFilm i {
-  color: orange;
+header #searchFilm #changeSearch {
+  background-color: black;
+  display: flex !important;
+  padding:8px;
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-left: 5px
+}
+
+header #searchFilm #changeSearch #movieIcon{
+  color: #ff9900;
+  cursor: pointer;
   margin-right: 10px;
+}
+
+header #searchFilm #changeSearch #usersIcon {
+  color: #68beff;
+  cursor: pointer;
 }
 
 aside {

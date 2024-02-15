@@ -112,11 +112,11 @@ const loginUser = async ({ username, password }, res) => {
 const userRegistration = async ({ username, mail, password }, res) => {
   // if the email has not already been used, create a new user who will then be logged in
   try {
-    const resultMail = await dbQuery(
-      "SELECT `mail` FROM `users` WHERE `mail` = ? LIMIT 1",
-      [mail]
+    const matches = await dbQuery(
+      "SELECT COUNT(*) AS count FROM users WHERE `mail` = ? OR `username` = ? LIMIT 1",
+      [mail, username]
     )
-    if (resultMail.length < 1) {
+    if (matches[0].count === 0) {
       const hashedPassword = await bcrypt.hash(password, 4) //number of times the password is hashed
       dbQuery(
         "INSERT INTO `users`(`username`, `password`, `mail`) VALUES(?, ?, ?)",
@@ -125,7 +125,7 @@ const userRegistration = async ({ username, mail, password }, res) => {
       loginUser({ username, password }, res)
     } else {
       res.json({
-        message: "This mail is already in use, try another one"
+        message: "Mail or username already in use, try with different ones"
       })
     }
   } catch {
@@ -324,7 +324,12 @@ app.get("/films", (req, res) => {
   renderFilms(req.query, res)
 })
 
-app.get("/search", async (req, res) => {
+app.get('/search-user', async(req,res) => {
+  const results = await dbQuery(`SELECT username from users WHERE username LIKE '%${req.query.s}%' LIMIT 10`)
+  res.status(200).json(results)
+})
+
+app.get("/search-movie", async (req, res) => {
   const response = await fetch(
     `https://www.omdbapi.com/?s=${encodeURIComponent(req.query.s)}&apikey=${
       process.env.OMDBKEY

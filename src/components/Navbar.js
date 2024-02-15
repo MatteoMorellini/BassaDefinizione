@@ -8,8 +8,18 @@ const Navbar = ({ token, setToken }) => {
   const history = useHistory()
   const [input, setInput] = useState("")
   const [results, setResults] = useState([])
+  const [movieSearch, setMovieSearch] = useState(true);
+  const [user, setUser] = useState('')
+
+  const changeSearch = (chosenSearch) => {
+    if(movieSearch!==chosenSearch){
+      setInput('')
+      setMovieSearch(chosenSearch);
+    }
+  };
 
   const tokenIsValid = (username) => {
+    setUser(username)
     userButton.current.href = `/user/${username}`
     userButton.current.innerHTML = `<i class="fa fa-user"></i> ${username}`
     userButton.current.style["border-radius"] = "10px 0 0 10px"
@@ -57,12 +67,13 @@ const Navbar = ({ token, setToken }) => {
 
   useEffect(() => {
     checkAccess()
-  })
+  }, [token])
 
   useEffect(() => {
     const timeoutSearch = setTimeout(() => {
       if (input) {
-        fetch(`/search?s=${input}`)
+        if (movieSearch){
+          fetch(`/search-movie?s=${input}`)
           .then((res) => res.json())
           .then((data) => {
             if (data.Response) {
@@ -74,6 +85,17 @@ const Navbar = ({ token, setToken }) => {
           .catch(() => {
             setResults([])
           })
+        } else {
+          fetch(`/search-user?s=${input}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setResults(data)
+          })
+          .catch(() => {
+            setResults([])
+          })
+        }
+        
       }
     }, 300)
     return () => {
@@ -89,10 +111,11 @@ const Navbar = ({ token, setToken }) => {
 
       <form
         id="searchFilm"
+        className = {movieSearch ? 'searchFilm' : 'searchUsers'}
         onSubmit={(e) => {
           e.preventDefault()
         }}>
-        <i className="fa-solid fa-search"></i>
+
         <input
           className="input-field"
           spellCheck="false"
@@ -102,25 +125,45 @@ const Navbar = ({ token, setToken }) => {
           onChange={(e) => setInput(e.target.value)}
           id="inputFilm"
           name="title"
-          placeholder="Search for a movie..."
+          placeholder= {movieSearch ? "Search for a movie..." : 'Search for a user...'}
         />
         <div id="suggestions">
-          {input.length === 0 || results === undefined ? (
-            <span></span>
-          ) : (
+          {(input.length === 0 || results === undefined) && (<span></span>)}
+          {(input.length>0 && results !== undefined && movieSearch === true) && (
             <ul>
-              {results.map((film, index) => {
-                return (
-                  <li key={index}>
-                    <a href={`/film/${film.Title}`}>
-                      <p>{film.Title}</p> <i className="fa-solid fa-arrow-right"></i>
-                    </a>
-                  </li>
-                )
+                {results.map((film, index) => {
+                  return (
+                    <li key={index}>
+                      <a href={`/film/${film.Title}`}>
+                        <p>{film.Title}</p> <i className="fa-solid fa-arrow-right"></i>
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+          )}
+          {(input.length>0 && results !== undefined && movieSearch === false) && (
+            <ul>
+
+              {results.map(({username}, index) => {
+                if (user !== username){
+                  return (
+                    <li key={index}>
+                      <a href={`/user/${username}`}>
+                        <p>{username}</p> <i className="fa-solid fa-arrow-right"></i>
+                      </a>
+                    </li>
+                  )
+                }
               })}
             </ul>
           )}
         </div>
+        <div id='changeSearch'>
+          <i className="fa-solid fa-film" style={{ opacity: movieSearch ? 1 : 0.3 }} id='movieIcon' onClick={()=>changeSearch(true)}></i>
+          <i className="fa-solid fa-users" style={{ opacity: movieSearch ? 0.3 : 1 }} id='usersIcon' onClick={()=>changeSearch(false)}></i>
+        </div>
+        
       </form>
 
       <div id="userInteraction">

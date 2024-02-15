@@ -37,7 +37,11 @@
     "eject": "react-scripts eject",
     "client": "npm start",
     "server": "node ./server.js",
+    "watch": "npm-watch",
     "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "watch":{
+    "build": "components/*.js"
   },
   "eslintConfig": {
     "extends": [
