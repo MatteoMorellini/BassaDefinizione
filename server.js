@@ -282,12 +282,34 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
   }
 }
 
+const checkLike = async(userIDreq, title, res) => {
+  try{
+    const titleID = await dbQuery('SELECT id FROM films WHERE title = ?', [title])
+    if (titleID.length < 1){
+      res.status(401).json({auth:true, voted:false})
+    } else {
+      const result = await dbQuery('SELECT liked FROM votes WHERE filmID = ? AND userID = ?', [titleID[0].id, userIDreq])
+      if (result.length<1){
+        res.status(401).json({auth:true, voted:false})
+      } else {
+        if (parseInt(result[0].liked)===0){
+          res.status(200).json({auth:true, voted:true, liked:false})
+        } else {
+          res.status(200).json({auth:true, voted:true, liked:true})
+        }
+      }
+    }
+  } catch(err) {
+    res.status(401).json({auth:true, voted: false})
+  }
+}
+
 const checkFollow = async(follower, following, res) => {
   try{
     const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
     if(searchedUserId[0].id){
       const result = await dbQuery('SELECT * FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1', [follower, searchedUserId[0].id])
-      if(result){
+      if(result.length > 0){
         res.status(200).json({auth:true, followed:true})
       } else {
         res.status(401).json({auth:true, followed:false})
@@ -435,6 +457,11 @@ app.post("/registration", (req, res) => {
 
 app.put("/vote", verifyToken, (req, res) => {
   voteFilm(req.body, req.id, res)
+})
+
+app.post('/vote', verifyToken, (req, res) => {
+  const {title} = req.body
+  checkLike(req.id, title, res)
 })
 
 app.get("/follow/:username", verifyToken, (req,res) => {

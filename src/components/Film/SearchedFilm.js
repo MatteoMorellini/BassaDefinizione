@@ -9,13 +9,12 @@ const SearchedFilm = ({ token, setToken}) => {
   const [data, setData] = useState()
   const [isRendered, setIsRendered] = useState(false)
   const { title } = useParams()
-  const likeButton = useRef()
-  const dislikeButton = useRef()
   const sectionFilm = useRef()
+  const [colorLike, setColorLike] = useState('black')
+  const [colorDislike, setColorDislike] = useState('black')
 
   useEffect(() => {
     const url = encodeURI(`/film-data/${title}`)
-
     fetch(url, {
       headers: {
         "Content-Type": "application/json",
@@ -45,16 +44,55 @@ const SearchedFilm = ({ token, setToken}) => {
       })
       .then(({ auth, vote }) => {
         if (auth && vote) {
-          if (rating) {
-            likeButton.current.style.color = "green"
-            dislikeButton.current.style.color = "black"
-          } else {
-            dislikeButton.current.style.color = "red"
-            likeButton.current.style.color = "black"
+          if (rating && colorLike === 'black') {
+            setColorLike('green')
+            if(colorDislike === 'red'){
+              setColorDislike('black')
+            }
+          } else if (colorDislike === 'black') {
+            setColorDislike('red')
+            if(colorLike === 'green'){
+              setColorLike('black')
+            }
           }
         }
       })
   }
+
+  const checkLike = () => {
+    fetch('/vote', {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ title }),
+      method: "POST"
+    })
+      .then((response) => {
+        return response.json()
+      })
+      .then(({ auth, voted, liked }) => {
+        if (auth && voted) {
+          if (liked && colorLike === 'black') {
+            setColorLike('green')
+            if(colorDislike === 'red'){
+              setColorDislike('black')
+            }
+          } else if (colorDislike === 'black') {
+            setColorDislike('red')
+            if(colorLike === 'green'){
+              setColorLike('black')
+            }
+          }
+        }
+      })
+  }
+
+  useEffect(() => {
+    if(token){
+      checkLike()
+    }
+  }, [token])
 
   if (isRendered) {
     return (
@@ -80,14 +118,8 @@ const SearchedFilm = ({ token, setToken}) => {
               {token && (
                 <div id="vote">
                   <h5 id="textRating">Rate the film</h5>
-                  <i
-                    className="fas fa-thumbs-up"
-                    onClick={() => onLikeClick(1)}
-                    ref={likeButton}></i>
-                  <i
-                    className="fas fa-thumbs-down"
-                    onClick={() => onLikeClick(0)}
-                    ref={dislikeButton}></i>
+                  <i className="fas fa-thumbs-up" style={{color: colorLike}} onClick={() => onLikeClick(1)}></i>
+                  <i className="fas fa-thumbs-down" style ={{color: colorDislike}} onClick={() => onLikeClick(0)} ></i>
                 </div>
               )}
             </div>

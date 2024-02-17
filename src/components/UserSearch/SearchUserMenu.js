@@ -44,6 +44,7 @@ const SearchUserFilms = ({ token, setToken}) => {
         return response.json()
       })
       .then(({ auth, followed }) => {
+        console.log(auth, followed)
         if (auth && followed) {
           setFollowed(true)
         }

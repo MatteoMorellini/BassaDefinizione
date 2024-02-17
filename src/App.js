@@ -26,7 +26,10 @@ const App = () => {
   }
 
   const [token, setToken] = useState("")
-  useEffect(() => setToken(getCookie("jwt")), [])
+  useEffect(() => {
+    setToken(getCookie("jwt"))
+  }, [])
+
 
   return (
     <React.Fragment>
