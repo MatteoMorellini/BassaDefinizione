@@ -5,7 +5,7 @@ import Navbar from "../Navbar.js"
 import Footer from "../Footer.js"
 import "./index.css"
 
-const Home = ({ token, setToken }) => {
+const Home = ({ token, setToken}) => {
   const [currentGenre, setCurrentGenre] = useState("Action")
   const genres = useRef([])
   const [isRendered, setIsRendered] = useState()
@@ -20,7 +20,7 @@ const Home = ({ token, setToken }) => {
 
   return (
     <React.Fragment>
-      <Navbar token={token} setToken={setToken} />
+      <Navbar token={token} setToken={setToken}/>
       <main className="main-homepage">
         <Sidebar
           genres={genres.current}

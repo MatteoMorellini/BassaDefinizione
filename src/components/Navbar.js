@@ -2,15 +2,15 @@ import fetch from "node-fetch"
 import React, { useState, useEffect, useRef } from "react"
 import { useHistory } from "react-router-dom"
 
-const Navbar = ({ token, setToken }) => {
+const Navbar = ({ token, setToken}) => {
   const userButton = useRef()
   const logoutButton = useRef()
   const history = useHistory()
   const [input, setInput] = useState("")
   const [results, setResults] = useState([])
-  const [movieSearch, setMovieSearch] = useState(true);
   const [user, setUser] = useState('')
   const suggestions = useRef()
+  const [movieSearch, setMovieSearch] = useState(true)
   const [showResults, setShowResults] = useState(false)
 
   const changeSearch = (chosenSearch) => {
@@ -23,7 +23,7 @@ const Navbar = ({ token, setToken }) => {
 
   const tokenIsValid = (username) => {
     setUser(username)
-    userButton.current.href = `/user/${username}`
+    userButton.current.href = `/profile`
     userButton.current.innerHTML = `<i class="fa fa-user"></i> ${username}`
     userButton.current.style["border-radius"] = "10px 0 0 10px"
     logoutButton.current.style.display = "inline"
@@ -171,7 +171,7 @@ const Navbar = ({ token, setToken }) => {
                 if (user !== username){
                   return (
                     <li key={index}>
-                      <a href={`/user/${username}`}>
+                      <a href={`/user-search/${username}`}>
                         <p>{username}</p> <i className="fa-solid fa-arrow-right"></i>
                       </a>
                     </li>

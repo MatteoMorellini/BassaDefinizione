@@ -282,6 +282,52 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
   }
 }
 
+const checkFollow = async(follower, following, res) => {
+  try{
+    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
+    if(searchedUserId[0].id){
+      const result = await dbQuery('SELECT * FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1', [follower, searchedUserId[0].id])
+      if(result){
+        res.status(200).json({auth:true, followed:true})
+      } else {
+        res.status(401).json({auth:true, followed:false})
+      }
+    } else {
+      res.status(401).json({auth:true, followed:false})
+    }
+  } catch (err) {
+    res.status(401).json({auth:true, followed:false})
+  }
+}
+
+const handleFollow = async(follower, following, res) => {
+  try{
+    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
+    if(searchedUserId[0].id){
+      dbQuery(`INSERT INTO follows VALUES (?,?)`, [follower, searchedUserId[0].id])
+      res.status(200).json({auth:true, status:true})
+    } else {
+      res.status(401).json({auth:true, status:false})
+    }
+  } catch (err) {
+    res.status(401).json({auth:true, status:false})
+  }
+}
+
+const handleUnfollow = async(follower, following, res) => {
+  try{
+    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
+    if(searchedUserId[0].id){
+      dbQuery(`DELETE FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1`, [follower, searchedUserId[0].id])
+      res.status(200).json({auth:true, status:true})
+    } else {
+      res.status(401).json({auth:true, status:false})
+    }
+  } catch (err) {
+    res.status(401).json({auth:true, status:false})
+  }
+}
+
 const favoriteFilms = async (userID, res) => {
   // takes ALL the movies voted by the user, very heavy function to UPDATE
   let userFilms = []
@@ -369,7 +415,13 @@ app.get("/film-data/:title", async (req, res) => {
   }
 })
 
-app.get("/user-data/:username", verifyToken, (req, res) => {
+app.get('/search-user-data/:username', async (req,res) => {
+  const {username} = req.params
+  const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ?', [username])
+  favoriteFilms(searchedUserId[0].id, res)
+})
+
+app.get("/user-data", verifyToken, (req, res) => {
   favoriteFilms(req.id, res)
 })
 
@@ -384,6 +436,22 @@ app.post("/registration", (req, res) => {
 app.put("/vote", verifyToken, (req, res) => {
   voteFilm(req.body, req.id, res)
 })
+
+app.get("/follow/:username", verifyToken, (req,res) => {
+  const {username} = req.params
+  checkFollow(req.id, username, res)
+})
+
+app.put("/follow/:username", verifyToken, (req,res) => {
+  const {username} = req.params
+  handleFollow(req.id, username, res)
+})
+
+app.put("/unfollow/:username", verifyToken, (req,res) => {
+  const {username} = req.params
+  handleUnfollow(req.id, username, res)
+})
+
 
 app.post("/token", verifyToken, async (req, res) => {
   try {

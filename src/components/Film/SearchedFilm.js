@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import Navbar from "../Navbar.js"
 import Footer from "../Footer.js"
 
-const SearchedFilm = ({ token, setToken }) => {
+const SearchedFilm = ({ token, setToken}) => {
   const [data, setData] = useState()
   const [isRendered, setIsRendered] = useState(false)
   const { title } = useParams()
@@ -59,7 +59,7 @@ const SearchedFilm = ({ token, setToken }) => {
   if (isRendered) {
     return (
       <React.Fragment>
-        <Navbar token={token} setToken={setToken} />
+        <Navbar token={token} setToken={setToken}/>
         {data !== undefined ? (
           <section id="specificFilm" ref={sectionFilm}>
             <img src={data.Poster} alt="" />

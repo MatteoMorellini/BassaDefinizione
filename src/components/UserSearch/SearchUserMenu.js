@@ -2,17 +2,21 @@ import React, { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import Navbar from "../Navbar.js"
 import Footer from "../Footer.js"
-import UserSidebar from "./UserSidebar.js"
-import "./userCatalog.css"
-import UserCatalog from "./UserCatalog.js"
+import UserSidebar from "./SearchUserSidebar.js"
+import "./searchUserCatalog.css"
+import UserCatalog from "./SearchUserCatalog.js"
 
-const UserFilms = ({ token, setToken}) => {
+const SearchUserFilms = ({ token, setToken}) => {
   const [currentGenre, setCurrentGenre] = useState("")
   const genres = useRef()
   const [isRendered, setIsRendered] = useState(false)
   const films = useRef()
+  const { username } = useParams()
   const clicked = useRef(false)
   const allGenres = useRef()
+  const [followed, setFollowed] = useState(false)
+  const [buttonText, setButtonText] = useState('Follow'); // Initial text
+  const [buttonColor, setButtonColor] = useState('#68beff');
 
   const onGenreClick = (e) => {
     setCurrentGenre(e.target.id)
@@ -28,31 +32,80 @@ const UserFilms = ({ token, setToken}) => {
     }
   }
 
-  useEffect(() => {
-    if (token !== "") {
-      fetch(`/user-data`, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: "Bearer " + token
+  const checkFollow = () => {
+    const url = encodeURI(`/follow/${username}`)
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      }
+    })
+      .then((response) => {
+        return response.json()
+      })
+      .then(({ auth, followed }) => {
+        if (auth && followed) {
+          setFollowed(true)
         }
       })
-        .then((response) => response.json())
-        .then(({ userGenres, userFilms, auth }) => {
-          if (auth) {
-            genres.current = userGenres
-            films.current = userFilms
-            setIsRendered(true)
-          }
-        })
-    } 
-  }, [token])
+  }
+
+  const handleFollow = () => {
+    const url = encodeURI(`/${followed ? 'un' : ''}follow/${username}`)
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      method: "PUT"
+    })
+      .then((response) => {
+        return response.json()
+      })
+      .then(({ auth, status }) => {
+        if (auth && status) {
+          setFollowed(!followed)
+        }
+      })
+  }
+
+  const getUserData = () => {
+    fetch(`/search-user-data/${username}`)
+      .then((response) => response.json())
+      .then(({ userGenres, userFilms}) => {
+        genres.current = userGenres
+        films.current = userFilms
+        setIsRendered(true)
+      })
+  }
+
+  useEffect(() => {
+    setButtonText(followed ? 'Unfollow' : 'Follow');
+    setButtonColor(followed ? '#ff9900' : '#68beff');
+  }, [followed])
+
+  useEffect(() => {
+    if(token){
+      getUserData()
+      checkFollow()
+    }
+  }, [token]) //because during the first load the navbar changes the token from ''
 
   return (
     <React.Fragment>
       <Navbar token={token} setToken={setToken}/>
+
       {isRendered ? (
-        films.current.length > 0 ? (
+        <div>
+          <div id='user-info'>
+            {token && (
+              <div id="follow-button" style={{backgroundColor: buttonColor}} onClick={() => {handleFollow()}}>
+                {buttonText}
+              </div>
+            )}
+            
+          </div>
+        {films.current.length > 0 ? (
           <React.Fragment>
             <div id="filterGenres" onClick={onButtonFilterClick}>
               <i className="fas fa-sort-down"></i> Filter by genre{" "}
@@ -82,6 +135,7 @@ const UserFilms = ({ token, setToken}) => {
                 <UserCatalog
                   films={films.current}
                   currentGenre={currentGenre}
+                  username = {username}
                 />
               </React.Fragment>
             </main>
@@ -89,10 +143,11 @@ const UserFilms = ({ token, setToken}) => {
         ) : (
           <div id="noFilm">
             <h1>
-              you haven't <span>voted</span> any movie yet.
+              They haven't <span>voted</span> any movie yet.
             </h1>
           </div>
-        )
+        )}
+        </div>
       ) : (
         <div className="lds-ellipsis">
           <div></div>
@@ -106,4 +161,4 @@ const UserFilms = ({ token, setToken}) => {
   )
 }
 
-export default UserFilms
+export default SearchUserFilms

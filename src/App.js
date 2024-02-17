@@ -5,6 +5,7 @@ import SearchedFilm from "./components/Film/SearchedFilm.js"
 import Login from "./components/Login/Login.js"
 import Registration from "./components/Registration/Registration.js"
 import UserMenu from "./components/User/UserMenu.js"
+import SearchUserMenu from './components/UserSearch/SearchUserMenu.js'
 import Page404 from "./components/404Page/Page404.js"
 import "./components/Homepage/index.css"
 const App = () => {
@@ -32,10 +33,13 @@ const App = () => {
       <Router>
         <Switch>
           <Route exact path="/film/:title">
-            <SearchedFilm token={token} setToken={setToken} />
+            <SearchedFilm token={token} setToken={setToken}/>
           </Route>
-          <Route exact path="/user/:username">
-            <UserMenu token={token} setToken={setToken} />
+          <Route exact path="/user-search/:username">
+            <SearchUserMenu token={token} setToken={setToken}/>
+          </Route>
+          <Route exact path="/profile">
+            <UserMenu token={token} setToken={setToken}/>
           </Route>
           <Route exact path="/login">
             <Login setToken={setToken} />
@@ -44,7 +48,7 @@ const App = () => {
             <Registration setToken={setToken} />
           </Route>
           <Route exact path="/">
-            <Home token={token} setToken={setToken} />
+            <Home token={token} setToken={setToken}/>
           </Route>
           <Route path="/">
             <Page404 />
