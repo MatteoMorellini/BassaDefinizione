@@ -266,6 +266,12 @@ body {
   font-size: 20px;
 }
 
+#friendsLike a{
+  text-decoration: none;
+  cursor:pointer;
+  color: #68beff;
+}
+
 #specificFilm #filmInformation #vote .fas {
   color: black;
   font-size: 20px;
