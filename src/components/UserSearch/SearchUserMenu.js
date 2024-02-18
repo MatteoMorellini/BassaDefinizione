@@ -11,12 +11,14 @@ const SearchUserFilms = ({ token, setToken}) => {
   const genres = useRef()
   const [isRendered, setIsRendered] = useState(false)
   const films = useRef()
-  const { username } = useParams()
+  const { userId } = useParams()
   const clicked = useRef(false)
   const allGenres = useRef()
   const [followed, setFollowed] = useState(false)
   const [buttonText, setButtonText] = useState('Follow'); // Initial text
   const [buttonColor, setButtonColor] = useState('#68beff');
+  const [followers, setFollowers] = useState(0)
+  const [followings, setFollowings] = useState(0)
 
   const onGenreClick = (e) => {
     setCurrentGenre(e.target.id)
@@ -33,7 +35,7 @@ const SearchUserFilms = ({ token, setToken}) => {
   }
 
   const checkFollow = () => {
-    const url = encodeURI(`/follow/${username}`)
+    const url = encodeURI(`/follow/${userId}`)
     fetch(url, {
       headers: {
         "Content-Type": "application/json",
@@ -43,8 +45,7 @@ const SearchUserFilms = ({ token, setToken}) => {
       .then((response) => {
         return response.json()
       })
-      .then(({ auth, followed }) => {
-        console.log(auth, followed)
+      .then(({ auth, followed, followers, following }) => {
         if (auth && followed) {
           setFollowed(true)
         }
@@ -52,7 +53,7 @@ const SearchUserFilms = ({ token, setToken}) => {
   }
 
   const handleFollow = () => {
-    const url = encodeURI(`/${followed ? 'un' : ''}follow/${username}`)
+    const url = encodeURI(`/${followed ? 'un' : ''}follow/${userId}`)
     fetch(url, {
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +72,7 @@ const SearchUserFilms = ({ token, setToken}) => {
   }
 
   const getUserData = () => {
-    fetch(`/search-user-data/${username}`)
+    fetch(`/search-user-data/${userId}`)
       .then((response) => response.json())
       .then(({ userGenres, userFilms}) => {
         genres.current = userGenres
@@ -81,13 +82,16 @@ const SearchUserFilms = ({ token, setToken}) => {
   }
 
   useEffect(() => {
+    getUserData()
+  })
+
+  useEffect(() => {
     setButtonText(followed ? 'Unfollow' : 'Follow');
     setButtonColor(followed ? '#ff9900' : '#68beff');
   }, [followed])
 
   useEffect(() => {
     if(token){
-      getUserData()
       checkFollow()
     }
   }, [token]) //because during the first load the navbar changes the token from ''
@@ -136,7 +140,7 @@ const SearchUserFilms = ({ token, setToken}) => {
                 <UserCatalog
                   films={films.current}
                   currentGenre={currentGenre}
-                  username = {username}
+                  userId = {userId}
                 />
               </React.Fragment>
             </main>

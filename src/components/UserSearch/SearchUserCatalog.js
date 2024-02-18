@@ -1,10 +1,10 @@
 import React from "react"
 
-const UserCatalog = ({ films, currentGenre, username}) => {
+const UserCatalog = ({ films, currentGenre, userId}) => {
   return (
     <article className="user-films">
       <div id="title">
-        <h1>{currentGenre.toUpperCase()} MOVIES THAT {username.toUpperCase()} LIKED</h1>
+        <h1>{currentGenre.toUpperCase()} MOVIES THAT THEY LIKED</h1>
       </div>
       <section id="favouriteFilms">
         {films

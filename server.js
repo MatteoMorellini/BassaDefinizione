@@ -306,14 +306,9 @@ const checkLike = async(userIDreq, title, res) => {
 
 const checkFollow = async(follower, following, res) => {
   try{
-    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
-    if(searchedUserId[0].id){
-      const result = await dbQuery('SELECT * FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1', [follower, searchedUserId[0].id])
-      if(result.length > 0){
-        res.status(200).json({auth:true, followed:true})
-      } else {
-        res.status(401).json({auth:true, followed:false})
-      }
+    const result = await dbQuery('SELECT * FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1', [follower, following])
+    if(result.length > 0){
+      res.status(200).json({auth:true, followed:true})
     } else {
       res.status(401).json({auth:true, followed:false})
     }
@@ -324,13 +319,8 @@ const checkFollow = async(follower, following, res) => {
 
 const handleFollow = async(follower, following, res) => {
   try{
-    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
-    if(searchedUserId[0].id){
-      dbQuery(`INSERT INTO follows VALUES (?,?)`, [follower, searchedUserId[0].id])
+      dbQuery(`INSERT INTO follows VALUES (?,?)`, [follower, following])
       res.status(200).json({auth:true, status:true})
-    } else {
-      res.status(401).json({auth:true, status:false})
-    }
   } catch (err) {
     res.status(401).json({auth:true, status:false})
   }
@@ -338,13 +328,8 @@ const handleFollow = async(follower, following, res) => {
 
 const handleUnfollow = async(follower, following, res) => {
   try{
-    const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ? LIMIT 1', [following])
-    if(searchedUserId[0].id){
-      dbQuery(`DELETE FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1`, [follower, searchedUserId[0].id])
-      res.status(200).json({auth:true, status:true})
-    } else {
-      res.status(401).json({auth:true, status:false})
-    }
+    dbQuery(`DELETE FROM follows WHERE followerId = ? AND followingId = ? LIMIT 1`, [follower, following])
+    res.status(200).json({auth:true, status:true})
   } catch (err) {
     res.status(401).json({auth:true, status:false})
   }
@@ -407,7 +392,7 @@ const handleFollowingLikes = async(title, followings, res) => {
       const likes = []
       Object.keys(followings).forEach((key)=>{
         if (followingLikes.includes(parseInt(key))){
-          likes.push(followings[parseInt(key)])
+          likes.push([key, followings[parseInt(key)]])
         }
       })
       res.status(200).json({auth:true, likes})
@@ -429,7 +414,7 @@ app.get("/films", (req, res) => {
 })
 
 app.get('/search-user', async(req,res) => {
-  const results = await dbQuery(`SELECT username from users WHERE username LIKE '%${req.query.s}%' LIMIT 10`)
+  const results = await dbQuery(`SELECT id, username from users WHERE username LIKE '%${req.query.s}%' LIMIT 10`)
   res.status(200).json(results)
 })
 
@@ -483,10 +468,9 @@ app.get('/film-like/:title', verifyToken, async (req,res) => {
   }
 })
 
-app.get('/search-user-data/:username', async (req,res) => {
-  const {username} = req.params
-  const searchedUserId = await dbQuery('SELECT id FROM users WHERE username = ?', [username])
-  favoriteFilms(searchedUserId[0].id, res)
+app.get('/search-user-data/:id', async (req,res) => {
+  const {id} = req.params
+  favoriteFilms(id, res)
 })
 
 app.get("/user-data", verifyToken, (req, res) => {
@@ -510,19 +494,19 @@ app.post('/vote', verifyToken, (req, res) => {
   checkLike(req.id, title, res)
 })
 
-app.get("/follow/:username", verifyToken, (req,res) => {
-  const {username} = req.params
-  checkFollow(req.id, username, res)
+app.get("/follow/:userId", verifyToken, (req,res) => {
+  const {userId} = req.params
+  checkFollow(req.id, userId, res)
 })
 
-app.put("/follow/:username", verifyToken, (req,res) => {
-  const {username} = req.params
-  handleFollow(req.id, username, res)
+app.put("/follow/:userId", verifyToken, (req,res) => {
+  const {userId} = req.params
+  handleFollow(req.id, userId, res)
 })
 
-app.put("/unfollow/:username", verifyToken, (req,res) => {
-  const {username} = req.params
-  handleUnfollow(req.id, username, res)
+app.put("/unfollow/:userId", verifyToken, (req,res) => {
+  const {userId} = req.params
+  handleUnfollow(req.id, userId, res)
 })
 
 

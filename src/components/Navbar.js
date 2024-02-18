@@ -167,11 +167,11 @@ const Navbar = ({ token, setToken}) => {
           )}
           {(input.length>0 && results !== undefined && showResults === true && movieSearch === false) && (
             <ul>
-              {results.map(({username}, index) => {
+              {results.map(({username, id}, index) => {
                 if (user !== username){
                   return (
                     <li key={index}>
-                      <a href={`/user-search/${username}`}>
+                      <a href={`/user-search/${id}`}>
                         <p>{username}</p> <i className="fa-solid fa-arrow-right"></i>
                       </a>
                     </li>

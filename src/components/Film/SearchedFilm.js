@@ -137,9 +137,9 @@ const SearchedFilm = ({ token, setToken}) => {
               {followingLikes!==false && (
               <div id='friendsLike'>
                     {followingLikes.length>0 && (
-                      <h5>People you follow that liked this movie: {followingLikes.map((user, index) => (
+                      <h5>People you follow that liked this movie: {followingLikes.map(([id, user], index) => (
                         <React.Fragment key={index}>
-                        <a href={`/user-search/${user}`}>{user}</a>{index < followingLikes.length - 1 && ', '}
+                        <a href={`/user-search/${id}`}>{user}</a>{index < followingLikes.length - 1 && ', '}
                         </React.Fragment>
                       ))}</h5>
                     )}

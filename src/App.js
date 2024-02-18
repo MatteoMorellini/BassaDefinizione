@@ -38,7 +38,7 @@ const App = () => {
           <Route exact path="/film/:title">
             <SearchedFilm token={token} setToken={setToken}/>
           </Route>
-          <Route exact path="/user-search/:username">
+          <Route exact path="/user-search/:userId">
             <SearchUserMenu token={token} setToken={setToken}/>
           </Route>
           <Route exact path="/profile">
