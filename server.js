@@ -381,6 +381,42 @@ const favoriteFilms = async (userID, res) => {
   }
 }
 
+const handleFollowings = async(follower, res) => {
+  try {
+    let result = await dbQuery('SELECT users.username, users.id FROM follows JOIN users ON users.id=follows.followingId WHERE followerId = ?', [follower])
+    let followings = {}
+    for(const item of result){
+      followings[item.id]=item.username
+    }
+    return followings
+  } catch(err){
+    res.status(401).json({auth:true, likes:[]})
+  }
+}
+
+const handleFollowingLikes = async(title, followings, res) => {
+  try{
+    const result = await dbQuery('SELECT id FROM films WHERE title = ?', [title])
+    if (result.length < 1){
+      res.status(401).json({auth:true, likes:[]})
+    } else {
+      const filmID = result[0].id
+      const followingsID = Object.keys(followings).join(',') //all the user's IDs followed by this user
+      const resultQuery = await dbQuery(`SELECT userID FROM votes WHERE userID IN (${followingsID}) AND filmID=${filmID} AND liked=1 `)
+      const followingLikes = resultQuery.map((user) => user.userID) //all the user's IDs that liked this movie
+      const likes = []
+      Object.keys(followings).forEach((key)=>{
+        if (followingLikes.includes(parseInt(key))){
+          likes.push(followings[parseInt(key)])
+        }
+      })
+      res.status(200).json({auth:true, likes})
+    }
+  } catch(err) {
+    res.status(401).json({auth:true, likes:[]})
+  }
+}
+
 // API SECTION -------------------------------------------------------------------------------
 
 app.get("/genres", async (req, res) => {
@@ -434,6 +470,16 @@ app.get("/film-data/:title", async (req, res) => {
       : res.status(400).json({ found: false })
   } catch {
     res.status(400).json({ found: false })
+  }
+})
+
+app.get('/film-like/:title', verifyToken, async (req,res) => {
+  const {title} = req.params
+  try {
+    const followings = await handleFollowings(req.id)
+    handleFollowingLikes(title, followings,res)
+  } catch {
+    res.status(400).json({auth:true, likes:[]})
   }
 })
 

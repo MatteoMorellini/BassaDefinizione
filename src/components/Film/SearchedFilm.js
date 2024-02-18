@@ -12,6 +12,24 @@ const SearchedFilm = ({ token, setToken}) => {
   const sectionFilm = useRef()
   const [colorLike, setColorLike] = useState('black')
   const [colorDislike, setColorDislike] = useState('black')
+  const [followingLikes, setFollowingLikes] = useState(false)
+
+  const fetchFilmLike = () => {
+    const url = encodeURI(`/film-like/${title}`)
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      }
+    }).then((res) => res.json())
+    .then(({ auth, likes }) => {
+      if (auth && likes) {
+        setFollowingLikes(likes)
+      } else {
+        setFollowingLikes([])
+      }
+    })
+  }
 
   useEffect(() => {
     const url = encodeURI(`/film-data/${title}`)
@@ -91,6 +109,7 @@ const SearchedFilm = ({ token, setToken}) => {
   useEffect(() => {
     if(token){
       checkLike()
+      fetchFilmLike()
     }
   }, [token])
 
@@ -115,11 +134,23 @@ const SearchedFilm = ({ token, setToken}) => {
                 {data.imdbVotes} <i className="fas fa-vote-yea"></i> IMDb
                 ratings
               </h5>
+              {followingLikes!==false && (
+              <div id='friendsLike'>
+                    {followingLikes && (
+                      <h5>People you follow that liked this movie: {followingLikes.join(', ')}</h5>
+                    )}
+                    {followingLikes.length==0 && (
+                      <h5>None of the people you follow liked this movie yet</h5>
+                    )}
+                  </div>)}
               {token && (
-                <div id="vote">
-                  <h5 id="textRating">Rate the film</h5>
-                  <i className="fas fa-thumbs-up" style={{color: colorLike}} onClick={() => onLikeClick(1)}></i>
-                  <i className="fas fa-thumbs-down" style ={{color: colorDislike}} onClick={() => onLikeClick(0)} ></i>
+                <div>
+                  <div id="vote">
+                    <h5 id="textRating">Rate the film</h5>
+                    <i className="fas fa-thumbs-up" style={{color: colorLike}} onClick={() => onLikeClick(1)}></i>
+                    <i className="fas fa-thumbs-down" style ={{color: colorDislike}} onClick={() => onLikeClick(0)} ></i>
+                  </div>
+
                 </div>
               )}
             </div>

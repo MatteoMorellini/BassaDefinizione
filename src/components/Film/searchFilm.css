@@ -230,12 +230,10 @@ body {
 #specificFilm #filmInformation #title {
   line-height: 60px;
   color: black;
-  font-size: 40px;
+  font-size: 30px;
   background-color: #ff9900;
   display: inline;
   text-transform: uppercase;
-  letter-spacing: 0.5vw;
-  padding: 0 1vw;
 }
 
 #specificFilm #filmInformation #plot {
@@ -259,8 +257,8 @@ body {
 
 #specificFilm #filmInformation #vote #textRating {
   display: inline;
-  background-color: #ff9900;
-  color: black;
+  background-color: black;
+  color: #ff9900;
   padding: 5px;
   text-transform: uppercase;
   letter-spacing: 2px;
