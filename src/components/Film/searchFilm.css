@@ -238,21 +238,27 @@ body {
 
 #specificFilm #filmInformation #plot {
   font-size: 20px;
-  margin: 20px 0;
-  padding: 0 10px;
+  margin: 15px 15px 20px 15px;
+  padding: 10px 10px 10px 15px;
   color: white;
-  border-left: 1px solid #ff9900;
+  background-color: black;
+  border-radius: 10px;
+  border:none !important;
 }
 
 #specificFilm #filmInformation h5 {
   font-size: 15px;
   padding: 0 10px;
   color: white;
-  border-left: 1px solid #ff9900;
+  border-left: 5px solid #fcb54b;
 }
 
 #specificFilm #filmInformation #vote {
   margin-top: 20px;
+}
+
+#specificFilm #filmInformation #vote h5{
+  border-left: 5px solid #ff9900 !important;
 }
 
 #specificFilm #filmInformation #vote #textRating {

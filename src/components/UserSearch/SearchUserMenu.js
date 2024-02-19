@@ -9,16 +9,19 @@ import UserCatalog from "./SearchUserCatalog.js"
 const SearchUserFilms = ({ token, setToken}) => {
   const [currentGenre, setCurrentGenre] = useState("")
   const genres = useRef()
-  const [isRendered, setIsRendered] = useState(false)
   const films = useRef()
+  const favoriteGenre = useRef()
   const { userId } = useParams()
   const clicked = useRef(false)
   const allGenres = useRef()
+  const [username, setUsername] = useState('')
   const [followed, setFollowed] = useState(false)
   const [buttonText, setButtonText] = useState('Follow'); // Initial text
   const [buttonColor, setButtonColor] = useState('#68beff');
-  const [followers, setFollowers] = useState(0)
-  const [followings, setFollowings] = useState(0)
+  const [followers, setFollowers] = useState({})
+  const [followings, setFollowings] = useState({})
+  const [viewFollowings, setViewFollowings] = useState('none')
+  const [viewFollowers, setViewFollowers] = useState('none')
 
   const onGenreClick = (e) => {
     setCurrentGenre(e.target.id)
@@ -45,7 +48,7 @@ const SearchUserFilms = ({ token, setToken}) => {
       .then((response) => {
         return response.json()
       })
-      .then(({ auth, followed, followers, following }) => {
+      .then(({ auth, followed}) => {
         if (auth && followed) {
           setFollowed(true)
         }
@@ -71,19 +74,42 @@ const SearchUserFilms = ({ token, setToken}) => {
       })
   }
 
-  const getUserData = () => {
-    fetch(`/search-user-data/${userId}`)
-      .then((response) => response.json())
-      .then(({ userGenres, userFilms}) => {
-        genres.current = userGenres
-        films.current = userFilms
-        setIsRendered(true)
-      })
-  }
-
   useEffect(() => {
+    const handleConnections = () => {
+      const url = encodeURI(`/connections/${userId}`)
+      fetch(url)
+        .then((response) => {
+          return response.json()
+        })
+        .then(({followers, followings }) => {
+          setFollowings(followings)
+          setFollowers(followers)
+        })
+    }
+    const getFavoriteGenre = () => {
+      const allGenres = films.current.flatMap(movie => movie.Genre.split(',').map(genre => genre.trim()));
+      const genreCounts = allGenres.reduce((acc, genre) => {
+        acc[genre] = (acc[genre] || 0) + 1;
+        return acc;
+      }, {});
+      const maxKey = Object.keys(genreCounts).reduce((res, cur) => {return genreCounts[res]>genreCounts[cur] ? res : cur})
+      return maxKey
+    }
+    const getUserData = () => {
+      fetch(`/search-user-data/${userId}`)
+        .then((response) => response.json())
+        .then(({ username, userGenres, userFilms}) => {
+          if(username!==''){
+            genres.current = userGenres
+            films.current = userFilms
+            favoriteGenre.current = films.current.length > 0 ? getFavoriteGenre() : 'None'
+            setUsername(username)
+          }
+        })
+    }
     getUserData()
-  })
+    handleConnections()
+  }, [])
 
   useEffect(() => {
     setButtonText(followed ? 'Unfollow' : 'Follow');
@@ -99,17 +125,55 @@ const SearchUserFilms = ({ token, setToken}) => {
   return (
     <React.Fragment>
       <Navbar token={token} setToken={setToken}/>
-
-      {isRendered ? (
-        <div>
-          <div id='user-info'>
-            {token && (
-              <div id="follow-button" style={{backgroundColor: buttonColor}} onClick={() => {handleFollow()}}>
-                {buttonText}
-              </div>
-            )}
-            
-          </div>
+      <div id="followings-div" style={{display: viewFollowings}}></div>
+      
+        <div id='followings-div2' style={{display: viewFollowings}}>
+          <h3>Followings</h3>
+          <ul>
+            {Object.entries(followings).map(([key,value]) => {
+                return (
+                  <li key={key}>
+                    <a href={`/user-search/${key}`}>
+                    <p>{value}</p> <i className="fa-solid fa-arrow-right"></i>
+                    </a>
+                  </li>
+                )
+            })}
+          </ul>
+          <i onClick={()=>{setViewFollowings('none')}} class="fa-solid fa-xmark"></i>
+        </div>
+        <div id="followings-div" style={{display: viewFollowers}}></div>
+      
+        <div id='followings-div2' style={{display: viewFollowers}}>
+          <h3>Followers</h3>
+          <ul>
+            {Object.entries(followers).map(([key,value]) => {
+                return (
+                  <li key={key}>
+                    <a href={`/user-search/${key}`}>
+                    <p>{value}</p> <i className="fa-solid fa-arrow-right"></i>
+                    </a>
+                  </li>
+                )
+            })}
+          </ul>
+          <i onClick={()=>{setViewFollowers('none')}} class="fa-solid fa-xmark"></i>
+        </div>
+      {username !== '' ? (
+        
+        <div id='searched-user'>
+            <div id='user-info'>
+              <div id='username-div'>@{username}</div>
+              <div className="other" onClick={()=>{setViewFollowers('block')}}>FOLLOWERS: {Object.keys(followers).length}</div>
+              <div className="other" onClick={()=>{setViewFollowings('block')}}>FOLLOWINGS: {Object.keys(followings).length}</div>
+              <div className="other">FAVORITE GENRE: {favoriteGenre.current}</div>
+              {token && (
+                <div id="follow-button" style={{color: buttonColor, borderColor: buttonColor}} onClick={() => {handleFollow()}}>
+                  {buttonText}
+                </div>
+              )}
+            </div>
+          
         {films.current.length > 0 ? (
           <React.Fragment>
             <div id="filterGenres" onClick={onButtonFilterClick}>
@@ -140,7 +204,7 @@ const SearchUserFilms = ({ token, setToken}) => {
                 <UserCatalog
                   films={films.current}
                   currentGenre={currentGenre}
-                  userId = {userId}
+                  username = {username}
                 />
               </React.Fragment>
             </main>

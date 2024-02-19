@@ -15,6 +15,7 @@ const Home = ({ token, setToken}) => {
       .then((response) => response.json())
       .then((data) => {
         genres.current = data
+        genres.current.sort((a,b) => {return a.name.localeCompare(b.name)})
       })
   }, [])
 

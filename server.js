@@ -335,7 +335,7 @@ const handleUnfollow = async(follower, following, res) => {
   }
 }
 
-const favoriteFilms = async (userID, res) => {
+const favoriteFilms = async (userID, res, username='') => {
   // takes ALL the movies voted by the user, very heavy function to UPDATE
   let userFilms = []
   let userGenres = []
@@ -360,7 +360,7 @@ const favoriteFilms = async (userID, res) => {
     }
     userGenres.sort() // alphabetical order of genres
     userFilms.sort((a, b) => b.imdbRating - a.imdbRating)
-    res.status(200).json({ userFilms, userGenres, auth: true })
+    res.status(200).json({ userFilms, userGenres, auth: true, username})
   } catch {
     res.status(401).json({ auth: false })
   }
@@ -375,7 +375,20 @@ const handleFollowings = async(follower, res) => {
     }
     return followings
   } catch(err){
-    res.status(401).json({auth:true, likes:[]})
+    res.status(401).json({})
+  }
+}
+
+const handleFollowers = async(following, res) => {
+  try {
+    let result = await dbQuery('SELECT users.username, users.id FROM follows JOIN users ON users.id=follows.followerId WHERE followingId = ?', [following])
+    let followers = {}
+    for(const item of result){
+      followers[item.id]=item.username
+    }
+    return followers
+  } catch(err){
+    res.status(401).json({})
   }
 }
 
@@ -399,6 +412,15 @@ const handleFollowingLikes = async(title, followings, res) => {
     }
   } catch(err) {
     res.status(401).json({auth:true, likes:[]})
+  }
+}
+
+const getUsername = async(id) => {
+  try{
+    const result = await dbQuery(`SELECT username FROM users WHERE id = ${id} LIMIT 1`)
+    return result[0].username
+  } catch(err) {
+    return ''
   }
 }
 
@@ -470,7 +492,8 @@ app.get('/film-like/:title', verifyToken, async (req,res) => {
 
 app.get('/search-user-data/:id', async (req,res) => {
   const {id} = req.params
-  favoriteFilms(id, res)
+  const username = await getUsername(id)
+  favoriteFilms(id, res, username)
 })
 
 app.get("/user-data", verifyToken, (req, res) => {
@@ -507,6 +530,13 @@ app.put("/follow/:userId", verifyToken, (req,res) => {
 app.put("/unfollow/:userId", verifyToken, (req,res) => {
   const {userId} = req.params
   handleUnfollow(req.id, userId, res)
+})
+
+app.get('/connections/:userId', async (req,res) => {
+  const {userId} = req.params
+  const followings = await handleFollowings(userId, res)
+  const followers = await handleFollowers(userId, res)
+  res.status(200).json({followings, followers})
 })
 
 
