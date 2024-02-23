@@ -76,6 +76,22 @@ body {
   margin: 0 auto 0;
 }
 
+#user-info-wrapper{
+    width: 90%;
+    margin: 50px auto 0;
+    padding: 1vw;
+    position: relative;
+    border-radius: 10px;
+    background: -webkit-gradient(
+      linear,
+      left top,
+      right top,
+      from(#ff9900),
+      to(#68beff)
+    );
+    background: linear-gradient(to right, #ff9900, #68beff);
+}
+
 #user-info{
   display: -webkit-box;
   display: -ms-flexbox;
@@ -85,8 +101,6 @@ body {
     -ms-flex-direction: row;
   flex-direction: row;
   background-color: #121212;
-  width: 90%;
-  margin: 50px auto 0;
   padding: 20px;
   align-items: baseline;
   gap:2vw !important;
@@ -116,6 +130,9 @@ body {
   text-align: center;
   font-size: 1.5vw;
   color: white;
+}
+
+#user-info .clickable{
   cursor: pointer;
 }
 

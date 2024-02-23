@@ -5,6 +5,19 @@ import Footer from "../Footer.js"
 import UserSidebar from "./SearchUserSidebar.js"
 import "./searchUserCatalog.css"
 import UserCatalog from "./SearchUserCatalog.js"
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const data_graph = {
+  datasets: [{
+    label: 'Movies per genre',
+    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+    borderColor: 'rgba(75, 192, 192, 1)',
+    borderWidth: 1
+  }]
+};
 
 const SearchUserFilms = ({ token, setToken}) => {
   const [currentGenre, setCurrentGenre] = useState("")
@@ -92,6 +105,9 @@ const SearchUserFilms = ({ token, setToken}) => {
         acc[genre] = (acc[genre] || 0) + 1;
         return acc;
       }, {});
+      data_graph.labels=Object.keys(genreCounts)
+      data_graph.datasets[0].data = Object.keys(genreCounts).map(key => genreCounts[key])
+      console.log(data_graph.datasets[0].data)
       const maxKey = Object.keys(genreCounts).reduce((res, cur) => {return genreCounts[res]>genreCounts[cur] ? res : cur})
       return maxKey
     }
@@ -107,6 +123,7 @@ const SearchUserFilms = ({ token, setToken}) => {
           }
         })
     }
+    
     getUserData()
     handleConnections()
   }, [])
@@ -160,12 +177,12 @@ const SearchUserFilms = ({ token, setToken}) => {
           <i onClick={()=>{setViewFollowers('none')}} class="fa-solid fa-xmark"></i>
         </div>
       {username !== '' ? (
-        
         <div id='searched-user'>
+          <div id='user-info-wrapper'>
             <div id='user-info'>
               <div id='username-div'>@{username}</div>
-              <div className="other" onClick={()=>{setViewFollowers('block')}}>FOLLOWERS: {Object.keys(followers).length}</div>
-              <div className="other" onClick={()=>{setViewFollowings('block')}}>FOLLOWINGS: {Object.keys(followings).length}</div>
+              <div className="other clickable" onClick={()=>{setViewFollowers('block')}}>FOLLOWERS: {Object.keys(followers).length}</div>
+              <div className="other clickable" onClick={()=>{setViewFollowings('block')}}>FOLLOWINGS: {Object.keys(followings).length}</div>
               <div className="other">FAVORITE GENRE: {favoriteGenre.current}</div>
               {token && (
                 <div id="follow-button" style={{color: buttonColor, borderColor: buttonColor}} onClick={() => {handleFollow()}}>
@@ -173,7 +190,7 @@ const SearchUserFilms = ({ token, setToken}) => {
                 </div>
               )}
             </div>
-          
+          </div>
         {films.current.length > 0 ? (
           <React.Fragment>
             <div id="filterGenres" onClick={onButtonFilterClick}>
@@ -208,6 +225,9 @@ const SearchUserFilms = ({ token, setToken}) => {
                 />
               </React.Fragment>
             </main>
+            <div className="chart-container" style={{ width: '40rem', margin: '25vh auto' }}>
+        <Doughnut data={data_graph} />
+      </div>
           </React.Fragment>
         ) : (
           <div id="noFilm">

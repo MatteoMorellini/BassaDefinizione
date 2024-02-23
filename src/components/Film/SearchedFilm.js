@@ -4,15 +4,18 @@ import "./searchFilm.css"
 import { useParams } from "react-router-dom"
 import Navbar from "../Navbar.js"
 import Footer from "../Footer.js"
+import Box from '@mui/material/Box';
+import Rating from '@mui/material/Rating';
+import Typography from '@mui/material/Typography';
+import StarIcon from '@mui/icons-material/Star';
 
 const SearchedFilm = ({ token, setToken}) => {
   const [data, setData] = useState()
   const [isRendered, setIsRendered] = useState(false)
   const { title } = useParams()
   const sectionFilm = useRef()
-  const [colorLike, setColorLike] = useState('black')
-  const [colorDislike, setColorDislike] = useState('black')
   const [followingLikes, setFollowingLikes] = useState(false)
+  const [starValue, setStarValue] = useState(0)
 
   const fetchFilmLike = () => {
     const url = encodeURI(`/film-like/${title}`)
@@ -62,17 +65,7 @@ const SearchedFilm = ({ token, setToken}) => {
       })
       .then(({ auth, vote }) => {
         if (auth && vote) {
-          if (rating && colorLike === 'black') {
-            setColorLike('green')
-            if(colorDislike === 'red'){
-              setColorDislike('black')
-            }
-          } else if (colorDislike === 'black') {
-            setColorDislike('red')
-            if(colorLike === 'green'){
-              setColorLike('black')
-            }
-          }
+          setStarValue(rating)
         }
       })
   }
@@ -89,19 +82,9 @@ const SearchedFilm = ({ token, setToken}) => {
       .then((response) => {
         return response.json()
       })
-      .then(({ auth, voted, liked }) => {
+      .then(({ auth, voted }) => {
         if (auth && voted) {
-          if (liked && colorLike === 'black') {
-            setColorLike('green')
-            if(colorDislike === 'red'){
-              setColorDislike('black')
-            }
-          } else if (colorDislike === 'black') {
-            setColorDislike('red')
-            if(colorLike === 'green'){
-              setColorLike('black')
-            }
-          }
+          setStarValue(voted)
         }
       })
   }
@@ -151,10 +134,8 @@ const SearchedFilm = ({ token, setToken}) => {
                 <div>
                   <div id="vote">
                     <h5 id="textRating">Rate the film</h5>
-                    <i className="fas fa-thumbs-up" style={{color: colorLike}} onClick={() => onLikeClick(1)}></i>
-                    <i className="fas fa-thumbs-down" style ={{color: colorDislike}} onClick={() => onLikeClick(0)} ></i>
+                    <Rating name="rating" onChange={(event, newValue)=>onLikeClick(newValue)} value={starValue} precision={1} emptyIcon = {<StarIcon sx={{ stroke: "#f4a704", strokeWidth: 1 }} color='auction' fontSize="inherit"/>}/>
                   </div>
-
                 </div>
               )}
             </div>

@@ -266,13 +266,12 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
         title
       ])
       const movieID = await returnMovieId(titleID, title, genres)
-      
       // insert the vote
-      dbQuery(`INSERT INTO votes VALUES(?,?,?)`, [movieID,userIDreq,rating])
+      dbQuery(`INSERT INTO votes VALUES(?,?,?, CURRENT_TIMESTAMP)`, [movieID,userIDreq,rating])
     } else {
       // if the user has already voted for the film, the vote is updated
       dbQuery(
-        `UPDATE votes SET liked = ? WHERE filmID = ? AND userID = ?`,
+        `UPDATE votes SET rating = ?, timestamp=CURRENT_TIMESTAMP WHERE filmID = ? AND userID = ?`,
         [rating, titleID[0].id, userIDreq] //se l'utente ha già votato il film, il voto è aggiornato
       )
     }
@@ -288,15 +287,11 @@ const checkLike = async(userIDreq, title, res) => {
     if (titleID.length < 1){
       res.status(401).json({auth:true, voted:false})
     } else {
-      const result = await dbQuery('SELECT liked FROM votes WHERE filmID = ? AND userID = ?', [titleID[0].id, userIDreq])
+      const result = await dbQuery('SELECT rating FROM votes WHERE filmID = ? AND userID = ?', [titleID[0].id, userIDreq])
       if (result.length<1){
         res.status(401).json({auth:true, voted:false})
       } else {
-        if (parseInt(result[0].liked)===0){
-          res.status(200).json({auth:true, voted:true, liked:false})
-        } else {
-          res.status(200).json({auth:true, voted:true, liked:true})
-        }
+        res.status(200).json({auth:true, voted: parseInt(result[0].rating)})
       }
     }
   } catch(err) {
@@ -341,7 +336,7 @@ const favoriteFilms = async (userID, res, username='') => {
   let userGenres = []
   try {
     let results = await dbQuery(
-      `SELECT DISTINCT films.title, votes.liked
+      `SELECT DISTINCT films.title, votes.rating, votes.timestamp
       FROM films
       INNER JOIN votes ON films.id = votes.filmID AND votes.userID = ?`,
       [userID]
@@ -400,7 +395,7 @@ const handleFollowingLikes = async(title, followings, res) => {
     } else {
       const filmID = result[0].id
       const followingsID = Object.keys(followings).join(',') //all the user's IDs followed by this user
-      const resultQuery = await dbQuery(`SELECT userID FROM votes WHERE userID IN (${followingsID}) AND filmID=${filmID} AND liked=1 `)
+      const resultQuery = await dbQuery(`SELECT userID FROM votes WHERE userID IN (${followingsID}) AND filmID=${filmID} AND rating>2 `)
       const followingLikes = resultQuery.map((user) => user.userID) //all the user's IDs that liked this movie
       const likes = []
       Object.keys(followings).forEach((key)=>{

@@ -278,34 +278,6 @@ body {
   color: #68beff;
 }
 
-#specificFilm #filmInformation #vote .fas {
-  color: black;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-#specificFilm #filmInformation #vote .fa-thumbs-up {
-  text-shadow: 0 0 1px green;
-}
-
-#specificFilm #filmInformation #vote .fa-thumbs-down {
-  text-shadow: 0 0 1px red;
-}
-
-#specificFilm #filmInformation #vote .fa-thumbs-up,
-#specificFilm #filmInformation #vote .fa-thumbs-down {
-  -webkit-transition: color 0.5s;
-  transition: color 0.5s;
-  margin-left: 10px;
-}
-
-#specificFilm #filmInformation #vote .fa-thumbs-up:hover {
-  color: green;
-}
-
-#specificFilm #filmInformation #vote .fa-thumbs-down:hover {
-  color: red;
-}
 
 @media only screen and (max-width: 1200px) {
   header #searchFilm {
