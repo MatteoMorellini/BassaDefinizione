@@ -1,4 +1,6 @@
-
+*{
+  box-sizing: border-box;
+}
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -69,6 +71,52 @@ body {
   min-height: 100vh;
   position: relative;
   padding-bottom: 200px;
+}
+
+.charts{
+  position: relative;
+  width: 90vw;
+  background-color: #121212;
+  border-radius: 10px;
+  border: 1px solid #121212;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.charts .chart-container h2{
+  width: 100%;
+  text-align: center;
+  color: #68beff;
+}
+
+.charts .chart-container canvas{
+  margin: 20px auto 0 auto;
+  height: 50vh !important;
+  width: auto !important;
+}
+
+.charts i{
+  position:absolute;
+  top: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 10px;
+  color: #68beff;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+}
+
+.charts i:hover{
+  background-color: black;
+}
+
+.charts .fa-arrow-left {
+  left:0;
+}
+
+.charts .fa-arrow-right {
+  right:0;
 }
 
 #searched-user{

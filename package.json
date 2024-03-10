@@ -47,7 +47,12 @@
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "watch": {
-    "build": "components/*.js"
+    "build": {
+      "patterns": [
+        "src/components/UserSearch"
+      ],
+      "extensions": "js,jsx"
+    }
   },
   "babel": {
     "presets": [

@@ -22,7 +22,7 @@ const UserCatalog = ({ films, currentGenre }) => {
                 <div className="card-body">
                   <h5 className="card-title">{film.Title}</h5>
                   <p className="card-text" id="rating">
-                    {film.imdbRating} <i className="far fa-star"></i>
+                    {(film.imdbRating/2).toFixed(1)} <i className="far fa-star"></i>
                   </p>
                 </div>
               </div>

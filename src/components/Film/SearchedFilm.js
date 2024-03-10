@@ -113,7 +113,7 @@ const SearchedFilm = ({ token, setToken}) => {
               <h5 id="actors">Actors: {data.Actors}</h5>
               <h5 id="awards">{data.Awards}</h5>
               <h5 id="imdbRating">
-                {data.imdbRating} <i className="far fa-star"></i> |{" "}
+                {(data.imdbRating/2).toFixed(1)} <i className="far fa-star"></i> |{" "}
                 {data.imdbVotes} <i className="fas fa-vote-yea"></i> IMDb
                 ratings
               </h5>

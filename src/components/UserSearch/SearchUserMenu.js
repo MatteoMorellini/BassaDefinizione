@@ -5,19 +5,36 @@ import Footer from "../Footer.js"
 import UserSidebar from "./SearchUserSidebar.js"
 import "./searchUserCatalog.css"
 import UserCatalog from "./SearchUserCatalog.js"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, registerables } from "chart.js";
+import { Doughnut, Line } from "react-chartjs-2";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, ...registerables);
 
-const data_graph = {
+const data_doughnut = {
   datasets: [{
     label: 'Movies per genre',
-    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-    borderColor: 'rgba(75, 192, 192, 1)',
+    borderColor: 'rgb(0, 0, 0)',
     borderWidth: 1
   }]
 };
+
+const data_line = {
+  datasets:[{
+    label: 'Timeline',
+  }], 
+  options: {
+    scales: {
+      x: {
+        type: 'time'
+      },
+      y: [{
+        ticks: {
+            precision: 0
+        }
+    }]
+    }
+  }
+}
 
 const SearchUserFilms = ({ token, setToken}) => {
   const [currentGenre, setCurrentGenre] = useState("")
@@ -27,6 +44,7 @@ const SearchUserFilms = ({ token, setToken}) => {
   const { userId } = useParams()
   const clicked = useRef(false)
   const allGenres = useRef()
+  const timeline = useRef()
   const [username, setUsername] = useState('')
   const [followed, setFollowed] = useState(false)
   const [buttonText, setButtonText] = useState('Follow'); // Initial text
@@ -35,6 +53,7 @@ const SearchUserFilms = ({ token, setToken}) => {
   const [followings, setFollowings] = useState({})
   const [viewFollowings, setViewFollowings] = useState('none')
   const [viewFollowers, setViewFollowers] = useState('none')
+  const [chartVisible, setChartVisible] = useState(false)
 
   const onGenreClick = (e) => {
     setCurrentGenre(e.target.id)
@@ -99,18 +118,82 @@ const SearchUserFilms = ({ token, setToken}) => {
           setFollowers(followers)
         })
     }
+
+    const filterDate = (mode = 'day') => {
+      const currentDate = new Date()
+      const filteredValues = []
+      if (mode==='day'){
+        for (let i=6; i>=0; i--){
+          const currentDateCopy = new Date(currentDate);
+          currentDateCopy.setDate(currentDate.getDate() - i);
+          const formattedDate = currentDateCopy.toISOString().split('T')[0];
+          filteredValues[formattedDate] = 0;
+        }
+        for ( const [key,value] of  Object.entries(timeline.current)) {
+          if (filteredValues.hasOwnProperty(key)) {
+              filteredValues[key] = value
+          }
+        }
+      }
+      
+      else if (mode==='year'){
+        for (let i=3; i>=0; i--){
+          const currentDateCopy = new Date(currentDate);
+          currentDateCopy.setMonth(currentDate.getMonth() - i);
+          const formattedDate = currentDateCopy.toISOString().split('-')[1];
+          filteredValues[formattedDate] = 0;
+        }
+        for ( let [key,value] of  Object.entries(timeline.current)) {
+          key = key.split('-')[1]
+          if (filteredValues.hasOwnProperty(key)) {
+              filteredValues[key] = value
+          }
+        }
+      }
+      const result = []
+      for (const [key,value] of Object.entries(filteredValues)){
+        result.push({x:key, y:value})
+      }
+      data_line.datasets[0].data = result
+    }
+
+    const getTimeline = () => {
+      const timestampCounts = {};
+      
+      // Iterate through the keys (dates) of the input dictionary
+      for (const film of films.current) {
+        // Get the timestamp for the current date
+        const timestamp = film.timestamp.split('T')[0];
+        
+        timestampCounts[timestamp] = (timestampCounts[timestamp] || 0) + 1;
+      }
+      // Return the object containing the count for each timestamp
+      timeline.current = timestampCounts
+      filterDate()
+    }
+
     const getFavoriteGenre = () => {
       const allGenres = films.current.flatMap(movie => movie.Genre.split(',').map(genre => genre.trim()));
       const genreCounts = allGenres.reduce((acc, genre) => {
         acc[genre] = (acc[genre] || 0) + 1;
         return acc;
       }, {});
-      data_graph.labels=Object.keys(genreCounts)
-      data_graph.datasets[0].data = Object.keys(genreCounts).map(key => genreCounts[key])
-      console.log(data_graph.datasets[0].data)
+      data_doughnut.labels=Object.keys(genreCounts)
+      data_doughnut.datasets[0].data = Object.keys(genreCounts).map(key => genreCounts[key])
+      const numberOfGenres = data_doughnut.datasets[0].data.length
+      const colors = []
+      for (let i=0; i<numberOfGenres; i++){
+        const diff_1 = 255 - ((255-104)/(numberOfGenres-1))*i
+        const diff_2 = 155 + ((190-153)/(numberOfGenres-1))*i
+        const diff_3 = 0 + (255/(numberOfGenres-1))*i
+        colors.push('rgb('+ parseInt(diff_1) +', ' + parseInt(diff_2) + ', ' + parseInt(diff_3) + ')')
+      }
+      console.log(colors)
+      data_doughnut.datasets[0].backgroundColor = colors
       const maxKey = Object.keys(genreCounts).reduce((res, cur) => {return genreCounts[res]>genreCounts[cur] ? res : cur})
       return maxKey
     }
+
     const getUserData = () => {
       fetch(`/search-user-data/${userId}`)
         .then((response) => response.json())
@@ -118,7 +201,13 @@ const SearchUserFilms = ({ token, setToken}) => {
           if(username!==''){
             genres.current = userGenres
             films.current = userFilms
-            favoriteGenre.current = films.current.length > 0 ? getFavoriteGenre() : 'None'
+            if (films.current.length > 0){
+              getTimeline()
+              favoriteGenre.current = getFavoriteGenre()
+            } else {
+              favoriteGenre.current = 'None'
+            }
+            
             setUsername(username)
           }
         })
@@ -225,9 +314,22 @@ const SearchUserFilms = ({ token, setToken}) => {
                 />
               </React.Fragment>
             </main>
-            <div className="chart-container" style={{ width: '40rem', margin: '25vh auto' }}>
-        <Doughnut data={data_graph} />
-      </div>
+            <div className='charts'>
+              {chartVisible ? (
+              <div className="chart-container doughnut">
+                <h2>Distribution of genres based on rated movies</h2>
+                <Doughnut data={data_doughnut} />
+              </div>
+              ):(
+              <div className="chart-container line">
+                <h2>Movie rated in the last 7 days</h2>
+                <Line data={data_line} />
+              </div>
+              )}
+              <i className="fa-solid fa-arrow-left" onClick={()=>{setChartVisible(!chartVisible)}}></i>
+              <i className="fa-solid fa-arrow-right" onClick={()=>{setChartVisible(!chartVisible)}}></i>
+            </div>
+            
           </React.Fragment>
         ) : (
           <div id="noFilm">

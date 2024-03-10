@@ -18,7 +18,7 @@ const Card = ({ film }) => {
         </p>
         <h6 className="card-label">IMDB RATING</h6>
         <p className="card-text">
-          {film.imdbRating}
+          {(film.imdbRating/2).toFixed(1)}
           <i className="far fa-star"></i> | {film.imdbVotes}
           <i className="fas fa-vote-yea"></i>
         </p>

@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken")
 const atob = require("atob")
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
+const { NoEncryption } = require("@mui/icons-material")
 const cardsPerPage = 10 // number of films per page
 const publicDirectoryPath = path.join(__dirname, "/build")
 app.use(express.static(publicDirectoryPath))
@@ -137,15 +138,20 @@ const userRegistration = async ({ username, mail, password }, res) => {
 
 // FILMS SECTION ----------------------------------------------------------------
 
-const searchFilm = async (name) => {
+const searchFilm = async (name, rating=undefined, timestamp=undefined) => {
   // common function for obtaining the data of a movie
   const url = `https://www.omdbapi.com/?t=${encodeURIComponent(name)}&apikey=${
     process.env.OMDBKEY
   }`
 
   try {
-    const response = await fetch(url)
-    return response.json()
+    let response = await fetch(url)
+    response = await response.json()
+    if(rating && timestamp){
+      return {...response, ...{rating, timestamp}}
+    } else {
+      return response
+    }
   } catch {
     return null
   }
@@ -342,16 +348,15 @@ const favoriteFilms = async (userID, res, username='') => {
       [userID]
     )
     // if there are 1 or + films voted by the user in that genre then it scrolls them
-    results = results.map(({ title }) => searchFilm(title))
+    results = results.map(({ title, rating, timestamp }) => searchFilm(title, rating, timestamp))
     const allData = await Promise.all(results)
     for (let data of allData) {
       // if the one just searched for is not present in the list of the user's films, it adds it
-      const { Title, imdbRating, Poster, Genre } = data
+      const { Title, imdbRating, Poster, Genre, rating, timestamp } = data
       Genre.split(", ").forEach((genre) => {
         if (!userGenres.includes(genre)) userGenres.push(genre)
       })
-
-      userFilms.push({ Title, imdbRating, Poster, Genre })
+      userFilms.push({ Title, imdbRating, Poster, Genre, rating, timestamp})
     }
     userGenres.sort() // alphabetical order of genres
     userFilms.sort((a, b) => b.imdbRating - a.imdbRating)
