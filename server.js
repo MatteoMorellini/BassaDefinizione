@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const jwt = require("jsonwebtoken")
 const atob = require("atob")
+const similarity = require('compute-cosine-similarity')
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
 const { NoEncryption, ConnectedTvOutlined } = require("@mui/icons-material")
@@ -213,20 +214,20 @@ const renderFilms = async ({ genre, page }, res) => {
 //MODIFICA QUESTA
 const addNewGenres = async (insertId, genres) => {
   let firstInsert = [true]
-  genres.forEach(async (genre) => {
+  for (const genre of genres){
     const id = await genreID(genre)
     // if the genre is not present in the genre table it is added
     if (id === undefined) {
       await dbQuery(`INSERT INTO genres (name) VALUES(?)`, [genre])
-      await dbQuery(`ALTER TABLE genresFilm ADD COLUMN ${genre} BOOLEAN`)
+      await dbQuery(`ALTER TABLE genresFilm ADD COLUMN \`${genre}\` BOOLEAN`)
     }
     if (firstInsert[0]===true){
       firstInsert[0]=false
-      await dbQuery(`INSERT INTO genresFilm (id, ${genre}) VALUES (?, 1)`, [insertId])
+      await dbQuery(`INSERT INTO genresFilm (id, \`${genre}\`) VALUES (?, 1)`, [insertId])
     } else {
-      await dbQuery(`UPDATE genresFilm SET ${genre} = 1 WHERE id = ?`, [insertId])
+      await dbQuery(`UPDATE genresFilm SET \`${genre}\` = 1 WHERE id = ?`, [insertId])
     }
-  })
+  }
 }
 
 const returnMovieId = async(titleID, title, genres) => {
@@ -235,6 +236,17 @@ const returnMovieId = async(titleID, title, genres) => {
       insertId // id of the inserted film
     } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
     await addNewGenres(insertId, genres)
+    const lastMovie = await dbQuery('SELECT * FROM genresFilm WHERE id = ?', [insertId])
+    const lastMovieVector = []
+    const firstMovie = await dbQuery('SELECT * FROM genresFilm WHERE id = 28')
+    const firstMovieVector = []
+    for(const key of Object.keys(lastMovie[0])){
+      if(key!=='id'){
+        lastMovieVector.push(lastMovie[0][key])
+        firstMovieVector.push(firstMovie[0][key])
+      }
+    }
+    console.log(similarity(lastMovieVector, firstMovieVector))
     return insertId
   } else {
     return titleID[0].id
