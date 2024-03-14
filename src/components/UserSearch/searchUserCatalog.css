@@ -551,19 +551,42 @@ main {
   display: inline-block;
   border: transparent;
   background-color: #121212;
+  overflow: hidden;
+}
+
+#favouriteFilms .searched-user{
+  height: 450px;
 }
 
 #favouriteFilms .card .card-img-top {
   height: 300px;
   width: 200px;
+  opacity: .6;
+  transition: all 0.5s ease;
 }
 
 #favouriteFilms .card .card-body .card-title {
   color: #68beff;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2; /* Number of lines to show */
+  line-clamp: 2; /* Standard property for future compatibility */
 }
 
 #favouriteFilms .card .card-body .card-text {
   color: white;
+}
+
+#favouriteFilms .card:hover .card-img-top {
+  opacity: 1;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+#favouriteFilms .card:hover .card-body{
+  display: none;
 }
 
 #favouriteFilms .card .btn {
@@ -582,10 +605,9 @@ main {
   box-shadow: none;
 }
 
-#favouriteFilms .card:hover {
-  position: relative;
-  bottom: 20px;
-}
+
+
+
 
 @media only screen and (max-width: 1400px) {
   header #searchFilm {

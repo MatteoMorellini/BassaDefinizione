@@ -337,6 +337,10 @@ main {
   background-color: #121212;
 }
 
+#favouriteFilms .profile {
+  height: 420px;
+}
+
 #favouriteFilms .card .card-img-top {
   height: 300px;
   width: 200px;
@@ -364,11 +368,6 @@ main {
 #favouriteFilms .card .btn:active {
   -webkit-box-shadow: none;
   box-shadow: none;
-}
-
-#favouriteFilms .card:hover {
-  position: relative;
-  bottom: 20px;
 }
 
 @media only screen and (max-width: 1400px) {

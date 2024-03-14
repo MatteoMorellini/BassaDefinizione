@@ -11,7 +11,7 @@ const UserCatalog = ({ films, currentGenre }) => {
           .filter((film) => film.Genre.includes(currentGenre))
           .map((film, index) => {
             return (
-              <div className="card" key={index}>
+              <div className="card profile" key={index}>
                 <a href={`/film/${film.Title}`}>
                   <img
                     className="card-img-top"

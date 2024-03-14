@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken")
 const atob = require("atob")
 const bcrypt = require("bcryptjs")
 const fetch = require("node-fetch")
-const { NoEncryption } = require("@mui/icons-material")
+const { NoEncryption, ConnectedTvOutlined } = require("@mui/icons-material")
 const cardsPerPage = 10 // number of films per page
 const publicDirectoryPath = path.join(__dirname, "/build")
 app.use(express.static(publicDirectoryPath))
@@ -173,33 +173,24 @@ const genreID = async(genre) => {
 const renderFilms = async ({ genre, page }, res) => {
   // render movies by genre and page
   const offset = parseInt(page) * cardsPerPage
-  // number of results to skip given by the page number requested by the user multiplied by the films on each page
-  const [
-    { id }
-  ] = await dbQuery("SELECT `id` FROM `genres` WHERE `name` = ? LIMIT 1", [
-    genre
-  ])
 
   // select the IDs of the films by skipping those of the "previous pages"
 
   const listOfTitlesID = await dbQuery(
-    `SELECT filmID FROM genreFilm WHERE genreID = ? LIMIT 10 OFFSET ?`,
-    [id, offset]
+    `SELECT id FROM genresFilm WHERE ${genre} = 1 LIMIT 10 OFFSET ?`,
+    [offset]
   )
-
 
   // get the title from the id
 
-  const requestsTitle = listOfTitlesID.map(({ filmID }) =>
-    dbQuery("SELECT title FROM `films` WHERE `id` = ? LIMIT 1", [filmID])
-  )
-
+  const requestsTitle = listOfTitlesID.map(({ id }) =>{
+    return dbQuery("SELECT title FROM `films` WHERE `id` = ? LIMIT 1", [id])
+  })
+  
   const listOfTitles = await Promise.all(requestsTitle)
-
   const requestsData = listOfTitles.map(([{ title }]) => searchFilm(title))
 
   let listOfFilms = await Promise.all(requestsData)
-
   // to lighten the data of the films I keep only the useful keys
 
   listOfFilms = listOfFilms.map((film) => ({
@@ -219,22 +210,21 @@ const renderFilms = async ({ genre, page }, res) => {
   //the try-catch block is missing, to be added together with an error message
 }
 
+//MODIFICA QUESTA
 const addNewGenres = async (insertId, genres) => {
+  let firstInsert = [true]
   genres.forEach(async (genre) => {
     const id = await genreID(genre)
     // if the genre is not present in the genre table it is added
-    if (id !== undefined) {
-      dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [insertId, id])
-    } else {
+    if (id === undefined) {
       await dbQuery(`INSERT INTO genres (name) VALUES(?)`, [genre])
-      let genreID = await dbQuery(
-        `SELECT id FROM genres WHERE name = ? LIMIT 1`,
-        [genre]
-      )
-      dbQuery(`INSERT INTO genreFilm VALUES(?, ?)`, [
-        insertId,
-        genreID[0].id
-      ])
+      await dbQuery(`ALTER TABLE genresFilm ADD COLUMN ${genre} BOOLEAN`)
+    }
+    if (firstInsert[0]===true){
+      firstInsert[0]=false
+      await dbQuery(`INSERT INTO genresFilm (id, ${genre}) VALUES (?, 1)`, [insertId])
+    } else {
+      await dbQuery(`UPDATE genresFilm SET ${genre} = 1 WHERE id = ?`, [insertId])
     }
   })
 }
@@ -244,7 +234,6 @@ const returnMovieId = async(titleID, title, genres) => {
     const {
       insertId // id of the inserted film
     } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
-
     await addNewGenres(insertId, genres)
     return insertId
   } else {
@@ -273,7 +262,7 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
       ])
       const movieID = await returnMovieId(titleID, title, genres)
       // insert the vote
-      dbQuery(`INSERT INTO votes VALUES(?,?,?, CURRENT_TIMESTAMP)`, [movieID,userIDreq,rating])
+      dbQuery(`INSERT INTO votes VALUES(?,?,CURRENT_TIMESTAMP, ?)`, [movieID,userIDreq,rating])
     } else {
       // if the user has already voted for the film, the vote is updated
       dbQuery(
@@ -399,15 +388,19 @@ const handleFollowingLikes = async(title, followings, res) => {
       res.status(401).json({auth:true, likes:[]})
     } else {
       const filmID = result[0].id
-      const followingsID = Object.keys(followings).join(',') //all the user's IDs followed by this user
-      const resultQuery = await dbQuery(`SELECT userID FROM votes WHERE userID IN (${followingsID}) AND filmID=${filmID} AND rating>2 `)
-      const followingLikes = resultQuery.map((user) => user.userID) //all the user's IDs that liked this movie
       const likes = []
-      Object.keys(followings).forEach((key)=>{
-        if (followingLikes.includes(parseInt(key))){
-          likes.push([key, followings[parseInt(key)]])
-        }
-      })
+      if (Object.keys(followings).length !== 0){
+        const followingsID = Object.keys(followings).join(',') //all the user's IDs followed by this user
+        const resultQuery = await dbQuery(`SELECT userID FROM votes WHERE userID IN (${followingsID}) AND filmID=${filmID} AND rating>2 `)
+        const followingLikes = resultQuery.map((user) => user.userID) //all the user's IDs that liked this movie
+        
+        Object.keys(followings).forEach((key)=>{
+          if (followingLikes.includes(parseInt(key))){
+            likes.push([key, followings[parseInt(key)]])
+          }
+        })
+      }
+      
       res.status(200).json({auth:true, likes})
     }
   } catch(err) {
@@ -461,9 +454,7 @@ app.get("/pagination", async (req, res) => {
   const [
     { pagesLength }
   ] = await dbQuery(
-    "SELECT COUNT(genreID) AS pagesLength FROM genreFilm WHERE genreID = ?",
-    [id]
-  )
+    `SELECT COUNT(${req.query.genre}) AS pagesLength FROM genresFilm WHERE ${req.query.genre} = 1`)
   res.json({ pagesLength })
 })
 
@@ -557,6 +548,8 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
-app.listen(serverPort, () =>
+app.listen(serverPort, async () => {
   console.log(`server listening on port ${serverPort}`)
-)
+})
+
+
