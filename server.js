@@ -139,7 +139,7 @@ const userRegistration = async ({ username, mail, password }, res) => {
 
 // FILMS SECTION ----------------------------------------------------------------
 
-const searchFilm = async (name, rating=undefined, timestamp=undefined) => {
+const searchFilm = async (name, rating=undefined, timestamp=undefined, suggest=false) => {
   // common function for obtaining the data of a movie
   const url = `https://www.omdbapi.com/?t=${encodeURIComponent(name)}&apikey=${
     process.env.OMDBKEY
@@ -148,6 +148,13 @@ const searchFilm = async (name, rating=undefined, timestamp=undefined) => {
   try {
     let response = await fetch(url)
     response = await response.json()
+    const genres = response.Genre.split(", ")
+    if(genres.length>0 && suggest){
+      const id = await insertMovieId(name, genres)
+      const similarMovies = await getSimilarMovies(id)
+      console.log(similarMovies)
+    }
+    
     if(rating && timestamp){
       return {...response, ...{rating, timestamp}}
     } else {
@@ -158,7 +165,7 @@ const searchFilm = async (name, rating=undefined, timestamp=undefined) => {
   }
 }
 
-const genreID = async(genre) => {
+const getGenreID = async(genre) => {
   try{
     let [
       { id } // id of the current genre
@@ -189,7 +196,7 @@ const renderFilms = async ({ genre, page }, res) => {
   })
   
   const listOfTitles = await Promise.all(requestsTitle)
-  const requestsData = listOfTitles.map(([{ title }]) => searchFilm(title))
+  const requestsData = listOfTitles.map(([{ title }]) => searchFilm(title, undefined, undefined, false))
 
   let listOfFilms = await Promise.all(requestsData)
   // to lighten the data of the films I keep only the useful keys
@@ -215,7 +222,7 @@ const renderFilms = async ({ genre, page }, res) => {
 const addNewGenres = async (insertId, genres) => {
   let firstInsert = [true]
   for (const genre of genres){
-    const id = await genreID(genre)
+    const id = await getGenreID(genre)
     // if the genre is not present in the genre table it is added
     if (id === undefined) {
       await dbQuery(`INSERT INTO genres (name) VALUES(?)`, [genre])
@@ -228,28 +235,17 @@ const addNewGenres = async (insertId, genres) => {
       await dbQuery(`UPDATE genresFilm SET \`${genre}\` = 1 WHERE id = ?`, [insertId])
     }
   }
+  await getSimilarityScore(insertId)
 }
 
-const returnMovieId = async(titleID, title, genres) => {
-  if (!titleID.length) {
-    const {
-      insertId // id of the inserted film
-    } = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
+const insertMovieId = async(title, genres) => {
+  const result = await dbQuery(`SELECT id FROM films WHERE title = ?`, [title])
+  if(result.length===0){
+    const {insertId} = await dbQuery(`INSERT INTO films (title) VALUES(?)`, [title])
     await addNewGenres(insertId, genres)
-    const lastMovie = await dbQuery('SELECT * FROM genresFilm WHERE id = ?', [insertId])
-    const lastMovieVector = []
-    const firstMovie = await dbQuery('SELECT * FROM genresFilm WHERE id = 28')
-    const firstMovieVector = []
-    for(const key of Object.keys(lastMovie[0])){
-      if(key!=='id'){
-        lastMovieVector.push(lastMovie[0][key])
-        firstMovieVector.push(firstMovie[0][key])
-      }
-    }
-    console.log(similarity(lastMovieVector, firstMovieVector))
     return insertId
   } else {
-    return titleID[0].id
+    return result[0].id
   }
 }
 
@@ -257,10 +253,6 @@ const returnMovieId = async(titleID, title, genres) => {
 
 const voteFilm = async ({ title, rating }, userIDreq, res) => {
   try {
-    const data = await searchFilm(title)
-
-    const genres = data.Genre.split(", ")
-
     // check if the user has already voted the movie
 
     let titleID = await dbQuery(
@@ -272,9 +264,8 @@ const voteFilm = async ({ title, rating }, userIDreq, res) => {
       const titleID = await dbQuery("SELECT id FROM films WHERE title = ? LIMIT 1", [
         title
       ])
-      const movieID = await returnMovieId(titleID, title, genres)
       // insert the vote
-      dbQuery(`INSERT INTO votes VALUES(?,?,CURRENT_TIMESTAMP, ?)`, [movieID,userIDreq,rating])
+      dbQuery(`INSERT INTO votes VALUES(?,?,CURRENT_TIMESTAMP, ?)`, [titleID[0].id,userIDreq,rating])
     } else {
       // if the user has already voted for the film, the vote is updated
       dbQuery(
@@ -349,7 +340,7 @@ const favoriteFilms = async (userID, res, username='') => {
       [userID]
     )
     // if there are 1 or + films voted by the user in that genre then it scrolls them
-    results = results.map(({ title, rating, timestamp }) => searchFilm(title, rating, timestamp))
+    results = results.map(({ title, rating, timestamp }) => searchFilm(title, rating, timestamp, false))
     const allData = await Promise.all(results)
     for (let data of allData) {
       // if the one just searched for is not present in the list of the user's films, it adds it
@@ -429,6 +420,50 @@ const getUsername = async(id) => {
   }
 }
 
+const getSimilarityScore = async(insertId) => {
+  const allMovies = await dbQuery('SELECT * FROM genresFilm')
+  const lastMovieVectors = {}
+  const firstMovieVector=[]
+  for (let i = 0; i < allMovies.length; i++) {
+    if (allMovies[i]['id'] !== insertId){
+      const movieVector = []
+      //lastMovieVectors[allMovies[0]]
+      for(const key of Object.keys(allMovies[0])){
+        if(key!=='id'){
+          movieVector.push(allMovies[i][key])
+        }
+      }
+      lastMovieVectors[allMovies[i].id]=movieVector
+    } else {
+      for(const key of Object.keys(allMovies[0])){
+        if(key!=='id'){
+          firstMovieVector.push(allMovies[i][key])
+        }
+      } 
+    }
+  }
+
+  const similarityPromises = Object.keys(lastMovieVectors).map((id) => {
+    const similarityScore = similarity(lastMovieVectors[id], firstMovieVector).toFixed(2)
+    return dbQuery('INSERT INTO similarity VALUES (?,?,?)', [id, insertId, similarityScore])
+  })
+  await Promise.all(similarityPromises)
+}
+
+const getSimilarMovies = async (id) => {
+  const left = await dbQuery('SELECT similarID, score FROM similarity WHERE movieID = ?', [id])
+  const right = await dbQuery('SELECT movieID, score FROM similarity WHERE similarID = ?', [id])
+  const result = [...left, ...right]
+  result.sort((a, b) => b.score - a.score)
+  const suggestedIDs = result.map(dict => {return dict.movieID ? dict.movieID : dict.similarID}).slice(0,10)
+  const suggestedMovies = []
+  for (const id of suggestedIDs) {
+    const result = await dbQuery('SELECT title FROM films WHERE id = ? LIMIT 1;', [id])
+    suggestedMovies.push(result[0].title)
+  }
+  return suggestedMovies
+}
+
 // API SECTION -------------------------------------------------------------------------------
 
 app.get("/genres", async (req, res) => {
@@ -474,7 +509,7 @@ app.get("/film-data/:title", async (req, res) => {
   const { title } = req.params
 
   try {
-    const data = await searchFilm(title)
+    const data = await searchFilm(title, undefined, undefined, true)
     data.Title
       ? res.status(200).json({ data, found: true })
       : res.status(400).json({ found: false })
@@ -560,8 +595,4 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
-app.listen(serverPort, async () => {
-  console.log(`server listening on port ${serverPort}`)
-})
-
-
+app.listen(serverPort, async () => console.log(`server listening on port ${serverPort}`))
