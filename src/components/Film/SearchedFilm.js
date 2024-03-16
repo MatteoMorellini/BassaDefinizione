@@ -16,6 +16,7 @@ const SearchedFilm = ({ token, setToken}) => {
   const sectionFilm = useRef()
   const [followingLikes, setFollowingLikes] = useState(false)
   const [starValue, setStarValue] = useState(0)
+  const [similarMovies, setSimilarMovies] = useState([])
 
   const fetchFilmLike = () => {
     const url = encodeURI(`/film-like/${title}`)
@@ -33,23 +34,6 @@ const SearchedFilm = ({ token, setToken}) => {
       }
     })
   }
-
-  useEffect(() => {
-    const url = encodeURI(`/film-data/${title}`)
-    fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-      }
-    })
-      .then((res) => res.json())
-      .then(({ data, found }) => {
-        if (found) {
-          setData(data)
-        }
-        setIsRendered(true)
-      })
-  }, [])
 
   const onLikeClick = (rating) => {
     fetch("/vote", {
@@ -90,6 +74,33 @@ const SearchedFilm = ({ token, setToken}) => {
   }
 
   useEffect(() => {
+    const url = encodeURI(`/film-data/${title}`)
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      }
+    })
+      .then((res) => res.json())
+      .then(({ data, found }) => {
+        if (found) {
+          setData(data)
+        }
+        setIsRendered(true)
+      })
+    const url2 = encodeURI(`/similar-movies/${title}`)
+    fetch(url2)
+      .then((res) => res.json())
+      .then(({ similarMovies }) => {
+        console.log(similarMovies)
+        if (similarMovies.length>0) {
+          setSimilarMovies(similarMovies)
+        }
+      })
+  }, [])
+
+
+  useEffect(() => {
     if(token){
       checkLike()
       fetchFilmLike()
@@ -101,6 +112,7 @@ const SearchedFilm = ({ token, setToken}) => {
       <React.Fragment>
         <Navbar token={token} setToken={setToken}/>
         {data !== undefined ? (
+          <React.Fragment>
           <section id="specificFilm" ref={sectionFilm}>
             <img src={data.Poster} alt="" />
             <div id="filmInformation">
@@ -140,6 +152,25 @@ const SearchedFilm = ({ token, setToken}) => {
               )}
             </div>
           </section>
+          {similarMovies.length > 0 ? (
+            <section id='suggestedMovies'>
+            <h1>Similar movies you might like</h1>
+            <ul>
+            {similarMovies.map((film) => {
+              return <li><a href={`/film/${film}`}>{film}</a></li>
+              })}
+            </ul>
+            </section>
+          ) : (
+                <div className="lds-ellipsis">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>)
+          }
+        </React.Fragment>
         ) : (
           <div id="filmNotFound">
             <h1>

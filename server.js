@@ -139,7 +139,7 @@ const userRegistration = async ({ username, mail, password }, res) => {
 
 // FILMS SECTION ----------------------------------------------------------------
 
-const searchFilm = async (name, rating=undefined, timestamp=undefined, suggest=false) => {
+const searchFilm = async (name, rating=undefined, timestamp=undefined) => {
   // common function for obtaining the data of a movie
   const url = `https://www.omdbapi.com/?t=${encodeURIComponent(name)}&apikey=${
     process.env.OMDBKEY
@@ -148,12 +148,7 @@ const searchFilm = async (name, rating=undefined, timestamp=undefined, suggest=f
   try {
     let response = await fetch(url)
     response = await response.json()
-    const genres = response.Genre.split(", ")
-    if(genres.length>0 && suggest){
-      const id = await insertMovieId(name, genres)
-      const similarMovies = await getSimilarMovies(id)
-      console.log(similarMovies)
-    }
+    
     
     if(rating && timestamp){
       return {...response, ...{rating, timestamp}}
@@ -196,7 +191,7 @@ const renderFilms = async ({ genre, page }, res) => {
   })
   
   const listOfTitles = await Promise.all(requestsTitle)
-  const requestsData = listOfTitles.map(([{ title }]) => searchFilm(title, undefined, undefined, false))
+  const requestsData = listOfTitles.map(([{ title }]) => searchFilm(title))
 
   let listOfFilms = await Promise.all(requestsData)
   // to lighten the data of the films I keep only the useful keys
@@ -340,7 +335,7 @@ const favoriteFilms = async (userID, res, username='') => {
       [userID]
     )
     // if there are 1 or + films voted by the user in that genre then it scrolls them
-    results = results.map(({ title, rating, timestamp }) => searchFilm(title, rating, timestamp, false))
+    results = results.map(({ title, rating, timestamp }) => searchFilm(title, rating, timestamp))
     const allData = await Promise.all(results)
     for (let data of allData) {
       // if the one just searched for is not present in the list of the user's films, it adds it
@@ -509,13 +504,33 @@ app.get("/film-data/:title", async (req, res) => {
   const { title } = req.params
 
   try {
-    const data = await searchFilm(title, undefined, undefined, true)
+    const data = await searchFilm(title)
     data.Title
       ? res.status(200).json({ data, found: true })
       : res.status(400).json({ found: false })
   } catch {
     res.status(400).json({ found: false })
   }
+})
+
+app.get('/similar-movies/:title', async(req,res) => {
+  const {title} = req.params
+  const url = `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${
+    process.env.OMDBKEY
+  }`
+  try {
+    let response = await fetch(url)
+    response = await response.json()
+    const genres = response.Genre.split(", ")
+    if(genres.length>0){
+      const id = await insertMovieId(title, genres)
+      const similarMovies = await getSimilarMovies(id)
+      res.status(200).json({similarMovies}) 
+    }
+  } catch {
+    res.status(400)
+  }
+
 })
 
 app.get('/film-like/:title', verifyToken, async (req,res) => {
