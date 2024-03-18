@@ -426,14 +426,19 @@ body {
 main {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: [genres] 20% [films] 80%;
-  grid-template-columns: [genres] 20% [films] 80%;
+  -ms-grid-columns: [genres] 18% [films] 78%;
+  grid-template-columns: [genres] 18% [films] 78%;
   margin: 30px 10px;
+  column-gap: 4%;
 }
 
 .user-genres {
   grid-area: genres;
   margin: 10px 0;
+  background-color: #121212;
+  border-radius: 10px;
+  border: 1px solid #121212;
+  max-height: fit-content;
 }
 
 .user-genres ::-webkit-scrollbar {
@@ -451,26 +456,32 @@ main {
 .user-genres #genresLegend {
   text-align: center;
   padding: 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #68beff;
+  margin: 5% auto 0;
+  border: none;
+  width: 90%;
 }
 
 .user-genres #genresLegend h1 {
   color: #68beff;
-  font-size: 30px;
+  font-size: 25px;
+  background-color: black;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding:10px;
 }
 
 .user-genres ul {
   list-style-type: none;
   direction: rtl;
-  height: 100vh;
   overflow: scroll;
   padding: 0;
+  height: fit-content;
 }
 
 .user-genres ul li {
   background-size: 200% 200%;
   text-align: center;
+  background-color: black;
   background-image: -webkit-gradient(
     linear,
     left bottom,
@@ -515,27 +526,29 @@ main {
 .user-films {
   grid-area: films;
   margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #121212;
+  background-color: #121212 !important;
+  height: fit-content;
 }
 
 .user-films #title {
-  text-align: center;
-  padding: 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #68beff;
+  text-align: left;
+  border: none;
+  margin: 2%;
 }
 
 .user-films #title h1 {
   color: #68beff;
   font-size: 30px;
 }
-
-.user-films #title h1 i {
-  color: #68beff;
-  font-size: 30px;
+.user-films #title h3{
+  color: #918f8f;
+  font-size:18px;
 }
 
 #favouriteFilms {
-  border-left: 1px solid #68beff;
+  border: none;
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: auto auto auto auto auto;
@@ -555,7 +568,7 @@ main {
   border-radius: 4px;
   display: inline-block;
   border: transparent;
-  background-color: #121212;
+  background-color: black;
   overflow: hidden;
 }
 
@@ -668,6 +681,16 @@ main {
   header img {
     width: 300px;
   }
+  .user-films #title {
+    margin: 15px;
+  }
+  
+  .user-films #title h1 {
+    font-size: 20px;
+  }
+  .user-films #title h3{
+    font-size:15px;
+  }
   #favouriteFilms {
     -ms-grid-columns: auto auto;
     grid-template-columns: auto auto;
@@ -678,12 +701,12 @@ main {
     width: 100%;
   }
   #username-div{
-    font-size:25px;
+    font-size:20px;
     text-align: center;
     width: 100%;
   }
   #user-info .other{
-    font-size: 20px;
+    font-size: 15px;
     text-align: center;
     width: 100%;
   }
@@ -693,8 +716,19 @@ main {
   }
   #follow-button{
     margin:0 auto;
-    font-size:15px;
+    font-size:12px;
     padding: 5px;
+  }
+  #searched-user{
+    width: 95%;
+  }
+  .charts .chart-container h2{
+    font-size: 20px;
+  }
+  .charts .chart-container canvas{
+    margin: 10px auto 0 auto;
+    width: 100% !important;
+    height: auto !important;
   }
   
 }

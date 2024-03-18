@@ -920,7 +920,7 @@ article#articleFilms .card:hover {
 
 @media only screen and (max-width: 700px) {
   header {
-    row-gap: 20px;
+    row-gap: 30px;
   }
   header .form-search {
     width: 90%;

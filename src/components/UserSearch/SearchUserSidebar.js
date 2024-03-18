@@ -8,7 +8,7 @@ const Sidebar = ({ genres, currentGenre, setCurrentGenre }) => {
   return (
     <aside className="user-genres">
       <div id="genresLegend">
-        <h1>GENRES</h1>
+        <h1>Genres</h1>
       </div>
       <ul>
         <li key="0" onClick={onGenreClick}>
