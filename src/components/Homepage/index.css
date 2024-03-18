@@ -896,6 +896,9 @@ article#articleFilms .card:hover {
   header .logo {
     width: 300px;
   }
+  header #userInteraction{
+    margin-top: 10px;
+  }
   #slogan h2 {
     font-size: 26px;
   }
