@@ -228,11 +228,12 @@ body {
 }
 
 #specificFilm #filmInformation #title {
-  line-height: 60px;
   color: black;
   font-size: 30px;
   background-color: #ff9900;
-  display: inline;
+  display: block;
+  width: fit-content;
+  padding: 10px;
   text-transform: uppercase;
 }
 
@@ -350,11 +351,17 @@ body {
   }
   #specificFilm #filmInformation #title {
     font-size: 30px;
-    line-height: 50px;
   }
   #specificFilm #filmInformation #textRating {
     display: inline-block;
     border: none;
+  }
+  #suggestedMovies h1{
+    font-size: 20px;
+  }
+
+  #suggestedMovies ul li a{
+    font-size: 15px;
   }
 }
 
@@ -374,10 +381,19 @@ body {
     -ms-flex-direction: column;
     flex-direction: column;
   }
+  #specificFilm #filmInformation #plot {
+    font-size:15px;
+  }
+  #specificFilm h5{
+    font-size: 12px;
+  }
   #specificFilm img {
     margin: 0 auto 20px auto;
     width: 50%;
     height: 50%;
+  }
+  #specificFilm #filmInformation #vote #textRating{
+    font-size: 15px;
   }
 }
 
@@ -387,6 +403,11 @@ body {
   }
   header #searchFilm {
     width: 70%;
+  }
+  #specificFilm #filmInformation #title {
+    font-size: 20px;
+    margin: 0 auto;
+    color: red;
   }
   header img {
     width: 200px;

@@ -126,7 +126,7 @@ body {
 
 #user-info-wrapper{
     width: 90%;
-    margin: 50px auto 0;
+    margin: 50px auto 30px;
     padding: 1vw;
     position: relative;
     border-radius: 10px;
@@ -151,7 +151,7 @@ body {
   background-color: #121212;
   padding: 20px;
   align-items: baseline;
-  gap:2vw !important;
+  justify-content: space-between;
 }
 
 #username-div{
@@ -171,10 +171,15 @@ body {
   width: fit-content;
   cursor: pointer;
   text-align: center;
+  font-size: 1.5vw;
+}
+
+#interactions{
+  display: flex;
+  gap: 10vw;
 }
 
 #user-info .other{
-  flex-grow: 1;
   text-align: center;
   font-size: 1.5vw;
   color: white;
@@ -667,6 +672,31 @@ main {
     -ms-grid-columns: auto auto;
     grid-template-columns: auto auto;
   }
+  #interactions{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+  #username-div{
+    font-size:25px;
+    text-align: center;
+    width: 100%;
+  }
+  #user-info .other{
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+  }
+  #user-info{
+    flex-direction: column;
+    row-gap: 10px;
+  }
+  #follow-button{
+    margin:0 auto;
+    font-size:15px;
+    padding: 5px;
+  }
+  
 }
 
 @media only screen and (max-width: 600px) {

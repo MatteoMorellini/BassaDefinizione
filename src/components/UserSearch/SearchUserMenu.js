@@ -270,9 +270,11 @@ const SearchUserFilms = ({ token, setToken}) => {
           <div id='user-info-wrapper'>
             <div id='user-info'>
               <div id='username-div'>@{username}</div>
-              <div className="other clickable" onClick={()=>{setViewFollowers('block')}}>FOLLOWERS: {Object.keys(followers).length}</div>
-              <div className="other clickable" onClick={()=>{setViewFollowings('block')}}>FOLLOWINGS: {Object.keys(followings).length}</div>
-              <div className="other">FAVORITE GENRE: {favoriteGenre.current}</div>
+              <div id='interactions'>
+                <div className="other clickable" onClick={()=>{setViewFollowers('block')}}>Followers: {Object.keys(followers).length}</div>
+                <div className="other clickable" onClick={()=>{setViewFollowings('block')}}>Followings: {Object.keys(followings).length}</div>
+              </div>
+              <div className="other">Favorite Genre: {favoriteGenre.current}</div>
               {token && (
                 <div id="follow-button" style={{color: buttonColor, borderColor: buttonColor}} onClick={() => {handleFollow()}}>
                   {buttonText}
