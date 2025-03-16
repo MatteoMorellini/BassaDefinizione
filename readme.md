@@ -107,7 +107,6 @@ To have a global IP address instead, you need to:
 
 - [ ] Change the password
 - [ ] Advanced movie search
-- [ ] A better design that doesn't look like P\*rnhub :)
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/TheGodMorel/BassaDefinizione)
 
